@@ -1,56 +1,277 @@
-// ===== "Кто прав в семье?" — логика приложения =====
+// ===== "Кто прав в семье?" / "Who's Right in the Family?" — логика приложения =====
 // Все данные хранятся локально на устройстве (localStorage), без сервера.
 
 const STORAGE_KEY = 'ktoprav_counters_v1';
 
-const PRESETS = [
-  { name: 'Тёща',      emoji: '👵', color: '#FF5A7A' },
-  { name: 'Тесть',     emoji: '👴', color: '#1FC8C0' },
-  { name: 'Свекровь',  emoji: '👵', color: '#8B5CF6' },
-  { name: 'Свёкор',    emoji: '👴', color: '#FFC93C' },
-  { name: 'Муж',       emoji: '🤵', color: '#1FC8C0' },
-  { name: 'Жена',      emoji: '👰', color: '#FF5A7A' },
-  { name: 'Мама',      emoji: '👩', color: '#FF9F5A' },
-  { name: 'Папа',      emoji: '👨', color: '#5AA9FF' },
-  { name: 'Брат',      emoji: '🧑', color: '#1FC8C0' },
-  { name: 'Сестра',    emoji: '👧', color: '#FF5A7A' },
-  { name: 'Начальник', emoji: '🧑‍💼', color: '#8B5CF6' },
-  { name: 'Я сам(а)',  emoji: '🤓', color: '#FFC93C' },
-];
+// ---------- Локализация ----------
+function ruPluralDaysWord(n) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'день';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'дня';
+  return 'дней';
+}
 
-const EMOJI_CHOICES = ['😀','😎','🥲','🤨','🧐','😤','🙄','😇','🤷','🤷‍♀️','🤷‍♂️','👻','🐱','🐶','🦄','🔥','👑','💅','🫡','🧙','🧑‍🍳','🐍','🦉','🐢'];
+const I18N = {
+  ru: {
+    strings: {
+      appTitle: 'Кто прав в семье?',
+      metaDescription: 'Кто прав в семье? — шуточный трекер, кто чаще оказывается прав.',
+      archive: 'Архив',
+      statsSummary: 'Общая статистика',
+      settings: 'Настройки',
+      homeEmpty: 'Пока никого нет. Добавь первого «правого» — и понеслась.',
+      addCounter: 'Добавить счётчик',
+      back: 'Назад',
+      moveToArchive: 'Переместить в архив',
+      scoreLabel: 'раз оказал(ась) прав(а)',
+      statToday: 'сегодня',
+      statWeek: 'на этой неделе',
+      statPrevWeek: 'на прошлой',
+      tapAria: 'Засчитать правоту',
+      tapHint: 'ТАП!',
+      tapWithComment: 'Тап с комментарием',
+      undoLast: '↩ отменить последний тап',
+      openHistory: '📜 история и комментарии',
+      chartDaily: 'Тапы по дням (7 дней)',
+      chartWeekly: 'По неделям',
+      historyEmpty: 'Тапов пока нет.',
+      langTitle: '🌐 Язык',
+      langSub: 'Авто — по языку телефона',
+      langAuto: 'Авто',
+      soundTitle: '🔊 Звук при тапе',
+      soundSub: 'Короткий звук в момент тапа',
+      vibroTitle: '📳 Вибрация при тапе',
+      vibroSub: 'Короткий отклик на телефоне',
+      backupTitle: 'Резервная копия',
+      backupHint: 'Все данные хранятся только на этом устройстве. Сделай бэкап, чтобы не потерять историю при смене телефона.',
+      exportBtn: '⬇️ Экспортировать данные (.json)',
+      importBtn: '⬆️ Импортировать из файла',
+      archiveHint: 'Персонажи отсюда не удаляются насовсем автоматически — их можно вернуть или стереть окончательно.',
+      archiveEmpty: 'В архиве пока пусто.',
+      weekResults: 'Итоги недели',
+      summaryEmpty: 'Добавь хотя бы одного персонажа, чтобы увидеть рейтинг правоты.',
+      addModalTitle: 'Кто на этот раз?',
+      customLabel: 'Или свой вариант:',
+      customNamePlaceholder: 'Имя / прозвище',
+      addBtn: 'Добавить',
+      close: 'Закрыть',
+      commentPlaceholder: 'Почему был(а) прав(а)? (необязательно)',
+      savePatternLabel: 'Сохранить как паттерн для быстрого выбора',
+      deleteTapBtn: 'Удалить тап',
+      tapSubmitBtn: 'Тап!',
+      saveSubmitBtn: 'Сохранить',
+      commentModalTitleAdd: 'Тап с комментарием',
+      commentModalTitleEdit: 'Комментарий к тапу',
+      restoreTitle: 'Восстановить',
+      deleteForeverTitle: 'Удалить насовсем',
+      noComment: 'без комментария',
+      weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+      totalText: (n) => `всего: ${n}`,
+      historyTitle: (name) => `История: ${name}`,
+      enterNameToast: 'Введи имя персонажа',
+      addedToast: (name) => `«${name}» добавлен(а)!`,
+      archivedToast: (name) => `«${name}» отправлен(а) в архив`,
+      restoredToast: (name) => `«${name}» восстановлен(а)`,
+      deleteForeverConfirm: (name) => `Удалить «${name}» насовсем? Это нельзя отменить.`,
+      deletedForeverToast: 'Удалено насовсем',
+      undoneToast: 'Последний тап отменён',
+      deleteTapConfirm: 'Удалить этот тап целиком? Счёт уменьшится на 1.',
+      tapDeletedToast: 'Тап удалён',
+      commentSavedToast: 'Комментарий сохранён',
+      recordedToast: (pattern) => `Записано: «${pattern}»`,
+      backupSavedToast: 'Файл с бэкапом сохранён',
+      importConfirm: 'Импорт заменит все текущие данные в приложении данными из файла. Продолжить?',
+      importParseError: 'Не удалось прочитать файл',
+      importFormatError: 'Файл не похож на бэкап этого приложения',
+      importedToast: 'Данные импортированы',
+      streakText: (n) => `🔥 ${n} ${ruPluralDaysWord(n)} подряд`,
+    },
+    presets: [
+      { name: 'Тёща', emoji: '👵', color: '#FF5A7A' },
+      { name: 'Тесть', emoji: '👴', color: '#1FC8C0' },
+      { name: 'Свекровь', emoji: '👵', color: '#8B5CF6' },
+      { name: 'Свёкор', emoji: '👴', color: '#FFC93C' },
+      { name: 'Муж', emoji: '🤵', color: '#1FC8C0' },
+      { name: 'Жена', emoji: '👰', color: '#FF5A7A' },
+      { name: 'Мама', emoji: '👩', color: '#FF9F5A' },
+      { name: 'Папа', emoji: '👨', color: '#5AA9FF' },
+      { name: 'Брат', emoji: '🧑', color: '#1FC8C0' },
+      { name: 'Сестра', emoji: '👧', color: '#FF5A7A' },
+      { name: 'Начальник', emoji: '🧑‍💼', color: '#8B5CF6' },
+      { name: 'Я сам(а)', emoji: '🤓', color: '#FFC93C' },
+    ],
+    quips: [
+      { min: 0, max: 0, text: 'Пока тишина. Затишье перед бурей?' },
+      { min: 1, max: 3, text: 'Разминка началась.' },
+      { min: 4, max: 9, text: 'Уже заметно. Может, просто соглашаться сразу?' },
+      { min: 10, max: 19, text: 'Двузначные числа. Уважение.' },
+      { min: 20, max: 49, text: 'Легенда семьи в процессе становления.' },
+      { min: 50, max: 99, text: 'Официально: спорить бесполезно.' },
+      { min: 100, max: Infinity, text: 'Занесено в семейную летопись навечно.' },
+    ],
+    weekLabels: [
+      { min: 0, max: 0, text: 'Спокойная неделя. Подозрительно спокойная.' },
+      { min: 1, max: 2, text: 'Лёгкая разминка недели.' },
+      { min: 3, max: 5, text: 'Обычная семейная неделя.' },
+      { min: 6, max: 9, text: 'Неделя явного превосходства.' },
+      { min: 10, max: 14, text: 'Ораторская неделя. Аргументы не иссякают.' },
+      { min: 15, max: Infinity, text: 'Рекорд недели! Пора вручать медаль.' },
+    ],
+    achievements: [
+      { min: 0, text: 'Легенда только начинается' },
+      { min: 5, text: '🏅 Достижение: «Уверенная позиция» (5)' },
+      { min: 10, text: '🏅 Достижение: «Двузначный авторитет» (10)' },
+      { min: 25, text: '🥈 Достижение: «Голос разума семьи» (25)' },
+      { min: 50, text: '🥇 Достижение: «Непререкаемый авторитет» (50)' },
+      { min: 100, text: '👑 Достижение: «Живая легенда» (100)' },
+      { min: 250, text: '🐐 Достижение: «GOAT семьи» (250)' },
+    ],
+  },
+
+  en: {
+    strings: {
+      appTitle: "Who's Right in the Family?",
+      metaDescription: "Who's Right in the Family? — a joke tracker for who turns out to be right most often.",
+      archive: 'Archive',
+      statsSummary: 'Overall stats',
+      settings: 'Settings',
+      homeEmpty: 'No one here yet. Add the first "right one" and off we go.',
+      addCounter: 'Add counter',
+      back: 'Back',
+      moveToArchive: 'Move to archive',
+      scoreLabel: 'times proven right',
+      statToday: 'today',
+      statWeek: 'this week',
+      statPrevWeek: 'last week',
+      tapAria: 'Count as right',
+      tapHint: 'TAP!',
+      tapWithComment: 'Tap with a comment',
+      undoLast: '↩ undo last tap',
+      openHistory: '📜 history & comments',
+      chartDaily: 'Taps by day (7 days)',
+      chartWeekly: 'By week',
+      historyEmpty: 'No taps yet.',
+      langTitle: '🌐 Language',
+      langSub: 'Auto — matches your phone language',
+      langAuto: 'Auto',
+      soundTitle: '🔊 Sound on tap',
+      soundSub: 'A short sound on every tap',
+      vibroTitle: '📳 Vibration on tap',
+      vibroSub: 'A short buzz on your phone',
+      backupTitle: 'Backup',
+      backupHint: 'All data is stored only on this device. Make a backup so you don’t lose your history when you switch phones.',
+      exportBtn: '⬇️ Export data (.json)',
+      importBtn: '⬆️ Import from file',
+      archiveHint: "Characters here aren't deleted automatically — you can restore them or erase them for good.",
+      archiveEmpty: 'The archive is empty.',
+      weekResults: "Week's results",
+      summaryEmpty: 'Add at least one character to see the rightness ranking.',
+      addModalTitle: 'Who is it this time?',
+      customLabel: 'Or your own:',
+      customNamePlaceholder: 'Name / nickname',
+      addBtn: 'Add',
+      close: 'Close',
+      commentPlaceholder: 'Why were they right? (optional)',
+      savePatternLabel: 'Save as a quick-pick pattern',
+      deleteTapBtn: 'Delete tap',
+      tapSubmitBtn: 'Tap!',
+      saveSubmitBtn: 'Save',
+      commentModalTitleAdd: 'Tap with a comment',
+      commentModalTitleEdit: 'Comment on tap',
+      restoreTitle: 'Restore',
+      deleteForeverTitle: 'Delete forever',
+      noComment: 'no comment',
+      weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      totalText: (n) => `total: ${n}`,
+      historyTitle: (name) => `History: ${name}`,
+      enterNameToast: 'Enter a name for the character',
+      addedToast: (name) => `"${name}" added!`,
+      archivedToast: (name) => `"${name}" moved to archive`,
+      restoredToast: (name) => `"${name}" restored`,
+      deleteForeverConfirm: (name) => `Delete "${name}" for good? This can’t be undone.`,
+      deletedForeverToast: 'Deleted for good',
+      undoneToast: 'Last tap undone',
+      deleteTapConfirm: 'Delete this tap entirely? The count will drop by 1.',
+      tapDeletedToast: 'Tap deleted',
+      commentSavedToast: 'Comment saved',
+      recordedToast: (pattern) => `Logged: "${pattern}"`,
+      backupSavedToast: 'Backup file saved',
+      importConfirm: 'Importing will replace all current app data with the data from the file. Continue?',
+      importParseError: "Couldn't read the file",
+      importFormatError: "This file doesn't look like a backup from this app",
+      importedToast: 'Data imported',
+      streakText: (n) => `🔥 ${n}-day streak`,
+    },
+    presets: [
+      { name: "Mother-in-law (wife's mom)", emoji: '👵', color: '#FF5A7A' },
+      { name: "Father-in-law (wife's dad)", emoji: '👴', color: '#1FC8C0' },
+      { name: "Mother-in-law (husband's mom)", emoji: '👵', color: '#8B5CF6' },
+      { name: "Father-in-law (husband's dad)", emoji: '👴', color: '#FFC93C' },
+      { name: 'Husband', emoji: '🤵', color: '#1FC8C0' },
+      { name: 'Wife', emoji: '👰', color: '#FF5A7A' },
+      { name: 'Mom', emoji: '👩', color: '#FF9F5A' },
+      { name: 'Dad', emoji: '👨', color: '#5AA9FF' },
+      { name: 'Brother', emoji: '🧑', color: '#1FC8C0' },
+      { name: 'Sister', emoji: '👧', color: '#FF5A7A' },
+      { name: 'Boss', emoji: '🧑‍💼', color: '#8B5CF6' },
+      { name: 'Myself', emoji: '🤓', color: '#FFC93C' },
+    ],
+    quips: [
+      { min: 0, max: 0, text: 'All quiet so far. Calm before the storm?' },
+      { min: 1, max: 3, text: 'Warm-up has started.' },
+      { min: 4, max: 9, text: 'Getting noticeable. Maybe just agree right away?' },
+      { min: 10, max: 19, text: 'Double digits. Respect.' },
+      { min: 20, max: 49, text: 'A family legend in the making.' },
+      { min: 50, max: 99, text: 'Officially: arguing is pointless.' },
+      { min: 100, max: Infinity, text: 'Forever etched into family history.' },
+    ],
+    weekLabels: [
+      { min: 0, max: 0, text: 'A quiet week. Suspiciously quiet.' },
+      { min: 1, max: 2, text: 'A light warm-up week.' },
+      { min: 3, max: 5, text: 'A pretty average family week.' },
+      { min: 6, max: 9, text: 'A week of clear dominance.' },
+      { min: 10, max: 14, text: 'A week of nonstop arguments.' },
+      { min: 15, max: Infinity, text: 'Record week! Time for a medal.' },
+    ],
+    achievements: [
+      { min: 0, text: 'The legend is just beginning' },
+      { min: 5, text: '🏅 Achievement: "Solid Case" (5)' },
+      { min: 10, text: '🏅 Achievement: "Double-Digit Authority" (10)' },
+      { min: 25, text: '🥈 Achievement: "Voice of Reason" (25)' },
+      { min: 50, text: '🥇 Achievement: "Undisputed Authority" (50)' },
+      { min: 100, text: '👑 Achievement: "Living Legend" (100)' },
+      { min: 250, text: '🐐 Achievement: "Family GOAT" (250)' },
+    ],
+  },
+};
+
+function detectDeviceLang() {
+  const nav = ((navigator.language || navigator.userLanguage || 'en') + '').toLowerCase();
+  return nav.startsWith('ru') ? 'ru' : 'en';
+}
+
+function currentLang() {
+  const pref = (state.settings && state.settings.lang) || 'auto';
+  if (pref === 'ru' || pref === 'en') return pref;
+  return detectDeviceLang();
+}
+
+function t(key, ...args) {
+  const dict = I18N[currentLang()].strings;
+  const val = dict[key];
+  if (typeof val === 'function') return val(...args);
+  return val !== undefined ? val : key;
+}
+
+function getPresets() { return I18N[currentLang()].presets; }
+function getQuips() { return I18N[currentLang()].quips; }
+function getWeekLabels() { return I18N[currentLang()].weekLabels; }
+function getAchievements() { return I18N[currentLang()].achievements; }
+
+const EMOJI_CHOICES = ['😀', '😎', '🥲', '🤨', '🧐', '😤', '🙄', '😇', '🤷', '🤷‍♀️', '🤷‍♂️', '👻', '🐱', '🐶', '🦄', '🔥', '👑', '💅', '🫡', '🧙', '🧑‍🍳', '🐍', '🦉', '🐢'];
 const COLOR_CHOICES = ['#FF5A7A', '#1FC8C0', '#FFC93C', '#8B5CF6', '#5AA9FF', '#FF9F5A'];
 
-const QUIPS_BY_COUNT = [
-  { min: 0, max: 0, text: 'Пока тишина. Затишье перед бурей?' },
-  { min: 1, max: 3, text: 'Разминка началась.' },
-  { min: 4, max: 9, text: 'Уже заметно. Может, просто соглашаться сразу?' },
-  { min: 10, max: 19, text: 'Двузначные числа. Уважение.' },
-  { min: 20, max: 49, text: 'Легенда семьи в процессе становления.' },
-  { min: 50, max: 99, text: 'Официально: спорить бесполезно.' },
-  { min: 100, max: Infinity, text: 'Занесено в семейную летопись навечно.' },
-];
-
-const WEEK_LABELS = [
-  { min: 0, max: 0, text: 'Спокойная неделя. Подозрительно спокойная.' },
-  { min: 1, max: 2, text: 'Лёгкая разминка недели.' },
-  { min: 3, max: 5, text: 'Обычная семейная неделя.' },
-  { min: 6, max: 9, text: 'Неделя явного превосходства.' },
-  { min: 10, max: 14, text: 'Ораторская неделя. Аргументы не иссякают.' },
-  { min: 15, max: Infinity, text: 'Рекорд недели! Пора вручать медаль.' },
-];
-
-const ACHIEVEMENTS = [
-  { min: 0, text: 'Легенда только начинается' },
-  { min: 5, text: '🏅 Достижение: «Уверенная позиция» (5)' },
-  { min: 10, text: '🏅 Достижение: «Двузначный авторитет» (10)' },
-  { min: 25, text: '🥈 Достижение: «Голос разума семьи» (25)' },
-  { min: 50, text: '🥇 Достижение: «Непререкаемый авторитет» (50)' },
-  { min: 100, text: '👑 Достижение: «Живая легенда» (100)' },
-  { min: 250, text: '🐐 Достижение: «GOAT семьи» (250)' },
-];
-
-let state = { counters: [], settings: { sound: true, vibro: true } };
+let state = { counters: [], settings: { sound: true, vibro: true, lang: 'auto' } };
 let currentId = null;
 let pendingEmoji = '😀';
 let pendingColor = COLOR_CHOICES[0];
@@ -66,9 +287,10 @@ function loadState() {
     if (raw) state = JSON.parse(raw);
   } catch (e) { console.warn('Не удалось прочитать данные', e); }
   if (!state.counters) state.counters = [];
-  if (!state.settings) state.settings = { sound: true, vibro: true };
+  if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto' };
   if (typeof state.settings.sound !== 'boolean') state.settings.sound = true;
   if (typeof state.settings.vibro !== 'boolean') state.settings.vibro = true;
+  if (!['auto', 'ru', 'en'].includes(state.settings.lang)) state.settings.lang = 'auto';
 
   // Миграция старого формата тапов (числа) в новый (объекты с id/ts/note)
   state.counters.forEach(c => {
@@ -104,19 +326,12 @@ function startOfWeek(date) {
 }
 
 function tapsInRange(counter, from, to) {
-  return counter.taps.filter(t => t.ts >= from.getTime() && t.ts < to.getTime()).length;
+  return counter.taps.filter(tap => tap.ts >= from.getTime() && tap.ts < to.getTime()).length;
 }
 
 // ---------- Стрики (серии подряд идущих дней) ----------
-function ruPluralDays(n) {
-  const mod10 = n % 10, mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return 'день';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'дня';
-  return 'дней';
-}
-
 function computeStreak(counter) {
-  const daySet = new Set(counter.taps.map(t => dayKey(t.ts)));
+  const daySet = new Set(counter.taps.map(tap => dayKey(tap.ts)));
   if (daySet.size === 0) return 0;
 
   let streak = 0;
@@ -135,7 +350,7 @@ function computeStreak(counter) {
 
 function tapsToday(counter) {
   const now = new Date();
-  const start = new Date(now); start.setHours(0,0,0,0);
+  const start = new Date(now); start.setHours(0, 0, 0, 0);
   const end = new Date(start); end.setDate(end.getDate() + 1);
   return tapsInRange(counter, start, end);
 }
@@ -156,16 +371,19 @@ function tapsPrevWeek(counter) {
 }
 
 function findQuip(total) {
-  return (QUIPS_BY_COUNT.find(q => total >= q.min && total <= q.max) || QUIPS_BY_COUNT[0]).text;
+  const quips = getQuips();
+  return (quips.find(q => total >= q.min && total <= q.max) || quips[0]).text;
 }
 
 function findWeekLabel(count) {
-  return (WEEK_LABELS.find(q => count >= q.min && count <= q.max) || WEEK_LABELS[0]).text;
+  const labels = getWeekLabels();
+  return (labels.find(q => count >= q.min && count <= q.max) || labels[0]).text;
 }
 
 function findAchievement(total) {
-  let best = ACHIEVEMENTS[0];
-  for (const a of ACHIEVEMENTS) if (total >= a.min) best = a;
+  const achievements = getAchievements();
+  let best = achievements[0];
+  for (const a of achievements) if (total >= a.min) best = a;
   return best.text;
 }
 
@@ -199,12 +417,12 @@ function renderHome() {
     const wrap = document.createElement('div');
     wrap.className = 'counter-card-wrap';
     wrap.innerHTML = `
-      <div class="swipe-action-bg">В архив 📦</div>
+      <div class="swipe-action-bg">${t('archive')} 📦</div>
       <div class="counter-card" style="border-left-color:${c.color}">
         <div class="counter-card-emoji" style="background:${c.color}22">${c.emoji}</div>
         <div class="counter-card-body">
           <div class="counter-card-name">${escapeHtml(c.name)}</div>
-          <div class="counter-card-sub">${tapsThisWeek(c)} на этой неделе</div>
+          <div class="counter-card-sub">${tapsThisWeek(c)} ${t('statWeek')}</div>
         </div>
         <div class="counter-card-score">${c.taps.length}</div>
       </div>
@@ -344,7 +562,7 @@ function renderDetail() {
   const streak = computeStreak(c);
   const streakChip = document.getElementById('streak-chip');
   if (streak >= 1) {
-    streakChip.textContent = `🔥 ${streak} ${ruPluralDays(streak)} подряд`;
+    streakChip.textContent = t('streakText', streak);
     streakChip.classList.remove('hidden');
   } else {
     streakChip.classList.add('hidden');
@@ -365,12 +583,12 @@ function renderDailyChart(c) {
     days.push(d);
   }
   const counts = days.map(d => {
-    const start = new Date(d); start.setHours(0,0,0,0);
+    const start = new Date(d); start.setHours(0, 0, 0, 0);
     const end = new Date(start); end.setDate(end.getDate() + 1);
     return tapsInRange(c, start, end);
   });
   const max = Math.max(1, ...counts);
-  const labels = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const labels = t('weekdays');
 
   days.forEach((d, i) => {
     const isToday = i === days.length - 1;
@@ -408,7 +626,7 @@ function renderWeeklyChart(c) {
     col.innerHTML = `
       <div class="chart-val">${counts[i]}</div>
       <div class="chart-bar" style="height:${h}px"></div>
-      <div class="chart-label">${w.start.getDate()}.${w.start.getMonth()+1}</div>
+      <div class="chart-label">${w.start.getDate()}.${w.start.getMonth() + 1}</div>
     `;
     el.appendChild(col);
   });
@@ -460,7 +678,7 @@ function addTap(counter, note) {
   renderDetail();
 
   const total = counter.taps.length;
-  const milestone = ACHIEVEMENTS.find(a => a.min === total);
+  const milestone = getAchievements().find(a => a.min === total);
   if (milestone) showToast(milestone.text);
 
   return tap;
@@ -478,7 +696,7 @@ function handleUndo() {
   c.taps.pop();
   saveState();
   renderDetail();
-  showToast('Последний тап отменён');
+  showToast(t('undoneToast'));
 }
 
 function burstConfetti(color) {
@@ -511,11 +729,11 @@ function burstConfetti(color) {
 
 let toastTimer = null;
 function showToast(text) {
-  const t = document.getElementById('toast');
-  t.textContent = text;
-  t.classList.remove('hidden');
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.classList.remove('hidden');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 2200);
 }
 
 // ---------- Архив ----------
@@ -530,7 +748,7 @@ function archiveCounter(id) {
   } else {
     goHome();
   }
-  showToast(`«${c.name}» отправлен(а) в архив`);
+  showToast(t('archivedToast', c.name));
 }
 
 function restoreCounter(id) {
@@ -541,18 +759,18 @@ function restoreCounter(id) {
   saveState();
   renderArchive();
   updateArchiveBadge();
-  showToast(`«${c.name}» восстановлен(а)`);
+  showToast(t('restoredToast', c.name));
 }
 
 function deleteForever(id) {
   const c = state.counters.find(x => x.id === id);
   if (!c) return;
-  if (!confirm(`Удалить «${c.name}» насовсем? Это нельзя отменить.`)) return;
+  if (!confirm(t('deleteForeverConfirm', c.name))) return;
   state.counters = state.counters.filter(x => x.id !== id);
   saveState();
   renderArchive();
   updateArchiveBadge();
-  showToast('Удалено насовсем');
+  showToast(t('deletedForeverToast'));
 }
 
 function renderArchive() {
@@ -576,10 +794,10 @@ function renderArchive() {
     row.innerHTML = `
       <span class="archive-emoji">${c.emoji}</span>
       <span class="archive-name">${escapeHtml(c.name)}</span>
-      <span class="archive-total">всего: ${c.taps.length}</span>
+      <span class="archive-total">${t('totalText', c.taps.length)}</span>
       <span class="archive-actions">
-        <button class="archive-btn" title="Восстановить" aria-label="Восстановить">♻️</button>
-        <button class="archive-btn danger" title="Удалить насовсем" aria-label="Удалить насовсем">🗑️</button>
+        <button class="archive-btn" title="${t('restoreTitle')}" aria-label="${t('restoreTitle')}">♻️</button>
+        <button class="archive-btn danger" title="${t('deleteForeverTitle')}" aria-label="${t('deleteForeverTitle')}">🗑️</button>
       </span>
     `;
     const [restoreBtn, deleteBtn] = row.querySelectorAll('.archive-btn');
@@ -613,10 +831,10 @@ function closeAddModal() {
 function renderPresetGrid() {
   const grid = document.getElementById('preset-grid');
   grid.innerHTML = '';
-  PRESETS.forEach(p => {
+  getPresets().forEach(p => {
     const btn = document.createElement('button');
     btn.className = 'preset-item';
-    btn.innerHTML = `<span class="p-emoji">${p.emoji}</span><span>${p.name}</span>`;
+    btn.innerHTML = `<span class="p-emoji">${p.emoji}</span><span>${escapeHtml(p.name)}</span>`;
     btn.addEventListener('click', () => addCounter(p.name, p.emoji, p.color));
     grid.appendChild(btn);
   });
@@ -660,13 +878,13 @@ function addCounter(name, emoji, color) {
   saveState();
   closeAddModal();
   openDetail(c.id);
-  showToast(`«${name}» добавлен(а)!`);
+  showToast(t('addedToast', name));
 }
 
 function handleAddCustom() {
   const name = document.getElementById('input-custom-name').value.trim();
   if (!name) {
-    showToast('Введи имя персонажа');
+    showToast(t('enterNameToast'));
     return;
   }
   addCounter(name, pendingEmoji, pendingColor);
@@ -722,10 +940,10 @@ function openCommentModal(mode, tap) {
   commentModalTapId = tap ? tap.id : null;
 
   document.getElementById('comment-modal-title').textContent =
-    mode === 'edit' ? 'Комментарий к тапу' : 'Тап с комментарием';
+    mode === 'edit' ? t('commentModalTitleEdit') : t('commentModalTitleAdd');
   document.getElementById('input-comment-text').value = tap ? (tap.note || '') : '';
   document.getElementById('chk-save-pattern').checked = mode !== 'edit';
-  document.getElementById('btn-comment-submit').textContent = mode === 'edit' ? 'Сохранить' : 'Тап!';
+  document.getElementById('btn-comment-submit').textContent = mode === 'edit' ? t('saveSubmitBtn') : t('tapSubmitBtn');
   document.getElementById('btn-comment-delete').classList.toggle('hidden', mode !== 'edit');
 
   renderPatternChips(c);
@@ -746,7 +964,7 @@ function renderPatternChips(c) {
     chip.className = 'pattern-chip';
     chip.innerHTML = `
       <button class="chip-text">${escapeHtml(pattern)}</button>
-      <button class="chip-remove" aria-label="Удалить паттерн">×</button>
+      <button class="chip-remove" aria-label="×">×</button>
     `;
     chip.querySelector('.chip-text').addEventListener('click', () => {
       // Быстрый тап по готовому паттерну — без лишнего ввода текста
@@ -756,7 +974,7 @@ function renderPatternChips(c) {
       }
       addTap(c, pattern);
       closeCommentModal();
-      showToast('Записано: «' + pattern + '»');
+      showToast(t('recordedToast', pattern));
     });
     chip.querySelector('.chip-remove').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -779,13 +997,13 @@ function submitCommentModal() {
   }
 
   if (commentModalMode === 'edit') {
-    const tap = c.taps.find(t => t.id === commentModalTapId);
+    const tap = c.taps.find(t2 => t2.id === commentModalTapId);
     if (tap) tap.note = text;
     saveState();
     closeCommentModal();
     renderHistory();
     renderDetail();
-    showToast('Комментарий сохранён');
+    showToast(t('commentSavedToast'));
   } else {
     addTap(c, text);
     closeCommentModal();
@@ -795,13 +1013,13 @@ function submitCommentModal() {
 function deleteTapFromModal() {
   const c = getCurrentCounter();
   if (!c || !commentModalTapId) return;
-  if (!confirm('Удалить этот тап целиком? Счёт уменьшится на 1.')) return;
-  c.taps = c.taps.filter(t => t.id !== commentModalTapId);
+  if (!confirm(t('deleteTapConfirm'))) return;
+  c.taps = c.taps.filter(tap => tap.id !== commentModalTapId);
   saveState();
   closeCommentModal();
   renderHistory();
   renderDetail();
-  showToast('Тап удалён');
+  showToast(t('tapDeletedToast'));
 }
 
 // ---------- История тапов ----------
@@ -818,7 +1036,7 @@ function renderHistory() {
   const c = getCurrentCounter();
   if (!c) return;
 
-  document.getElementById('history-title').textContent = `История: ${c.name}`;
+  document.getElementById('history-title').textContent = t('historyTitle', c.name);
 
   const list = document.getElementById('history-list');
   const empty = document.getElementById('history-empty');
@@ -839,7 +1057,7 @@ function renderHistory() {
       <span class="history-row-icon">${tap.note ? '💬' : '👉'}</span>
       <div class="history-row-body">
         <div class="history-row-date">${formatTapDate(tap.ts)}</div>
-        <div class="history-row-note ${tap.note ? '' : 'empty'}">${tap.note ? escapeHtml(tap.note) : 'без комментария'}</div>
+        <div class="history-row-note ${tap.note ? '' : 'empty'}">${tap.note ? escapeHtml(tap.note) : t('noComment')}</div>
       </div>
     `;
     row.addEventListener('click', () => openCommentModal('edit', tap));
@@ -851,6 +1069,14 @@ function renderHistory() {
 function renderSettings() {
   document.getElementById('chk-sound').checked = state.settings.sound;
   document.getElementById('chk-vibro').checked = state.settings.vibro;
+  updateLangSegmentedUI();
+}
+
+function updateLangSegmentedUI() {
+  const pref = state.settings.lang || 'auto';
+  document.querySelectorAll('#lang-segmented .segmented-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === pref);
+  });
 }
 
 function exportData() {
@@ -866,7 +1092,7 @@ function exportData() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast('Файл с бэкапом сохранён');
+  showToast(t('backupSavedToast'));
 }
 
 function importDataFromFile(file) {
@@ -876,30 +1102,71 @@ function importDataFromFile(file) {
     try {
       parsed = JSON.parse(e.target.result);
     } catch (err) {
-      showToast('Не удалось прочитать файл');
+      showToast(t('importParseError'));
       return;
     }
     if (!parsed || !Array.isArray(parsed.counters)) {
-      showToast('Файл не похож на бэкап этого приложения');
+      showToast(t('importFormatError'));
       return;
     }
-    if (!confirm('Импорт заменит все текущие данные в приложении данными из файла. Продолжить?')) return;
+    if (!confirm(t('importConfirm'))) return;
     state = parsed;
-    if (!state.settings) state.settings = { sound: true, vibro: true };
+    if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto' };
+    if (!['auto', 'ru', 'en'].includes(state.settings.lang)) state.settings.lang = 'auto';
     state.counters.forEach(c => {
       if (!Array.isArray(c.patterns)) c.patterns = [];
-      c.taps = (c.taps || []).map(t => typeof t === 'number' ? { id: uid(), ts: t, note: '' } : t);
+      c.taps = (c.taps || []).map(tap => typeof tap === 'number' ? { id: uid(), ts: tap, note: '' } : tap);
     });
     saveState();
+    applyLanguage();
     goHome();
-    showToast('Данные импортированы');
+    showToast(t('importedToast'));
   };
   reader.readAsText(file);
+}
+
+// ---------- Применение языка ко всему интерфейсу ----------
+function applyStaticTranslations() {
+  const lang = currentLang();
+  document.getElementById('html-root').setAttribute('lang', lang);
+  document.getElementById('page-title').textContent = t('appTitle');
+  document.title = t('appTitle');
+  document.getElementById('meta-description').setAttribute('content', t('metaDescription'));
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
+
+  updateLangSegmentedUI();
+}
+
+function applyLanguage() {
+  applyStaticTranslations();
+  const activeView = document.querySelector('.view.active');
+  if (!activeView) return;
+  switch (activeView.id) {
+    case 'view-home': renderHome(); break;
+    case 'view-detail': renderDetail(); break;
+    case 'view-history': renderHistory(); break;
+    case 'view-settings': renderSettings(); break;
+    case 'view-archive': renderArchive(); break;
+    case 'view-summary': renderSummary(); break;
+  }
 }
 
 // ---------- Инициализация ----------
 function init() {
   loadState();
+  applyStaticTranslations();
   goHome();
 
   document.getElementById('btn-add-counter').addEventListener('click', openAddModal);
@@ -960,6 +1227,13 @@ function init() {
   document.getElementById('chk-vibro').addEventListener('change', (e) => {
     state.settings.vibro = e.target.checked;
     saveState();
+  });
+  document.querySelectorAll('#lang-segmented .segmented-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.settings.lang = btn.dataset.lang;
+      saveState();
+      applyLanguage();
+    });
   });
   document.getElementById('btn-export-data').addEventListener('click', exportData);
   document.getElementById('btn-import-data').addEventListener('click', () => {

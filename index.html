@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#FF5A7A">
-<meta name="description" content="Кто прав в семье? — шуточный трекер, кто чаще оказывается прав.">
-<title>Кто прав в семье?</title>
+<meta name="description" id="meta-description" content="Кто прав в семье? — шуточный трекер, кто чаще оказывается прав.">
+<title id="page-title">Кто прав в семье?</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -20,14 +20,14 @@
     <header class="app-header">
       <div class="app-title">
         <span class="logo-emoji">🤔</span>
-        <h1>Кто прав в семье?</h1>
+        <h1 data-i18n="appTitle">Кто прав в семье?</h1>
       </div>
       <div class="header-actions">
-        <button id="btn-open-archive" class="icon-btn" title="Архив" aria-label="Архив">
+        <button id="btn-open-archive" class="icon-btn" data-i18n-title="archive" data-i18n-aria="archive" title="Архив" aria-label="Архив">
           📦<span id="archive-badge" class="badge hidden">0</span>
         </button>
-        <button id="btn-open-stats-summary" class="icon-btn" title="Общая статистика" aria-label="Общая статистика">📊</button>
-        <button id="btn-open-settings" class="icon-btn" title="Настройки" aria-label="Настройки">⚙️</button>
+        <button id="btn-open-stats-summary" class="icon-btn" data-i18n-title="statsSummary" data-i18n-aria="statsSummary" title="Общая статистика" aria-label="Общая статистика">📊</button>
+        <button id="btn-open-settings" class="icon-btn" data-i18n-title="settings" data-i18n-aria="settings" title="Настройки" aria-label="Настройки">⚙️</button>
       </div>
     </header>
 
@@ -35,10 +35,10 @@
 
     <div id="home-empty" class="empty-state hidden">
       <div class="empty-emoji">🕊️</div>
-      <p>Пока никого нет. Добавь первого «правого» — и понеслась.</p>
+      <p data-i18n="homeEmpty">Пока никого нет. Добавь первого «правого» — и понеслась.</p>
     </div>
 
-    <button id="btn-add-counter" class="fab" aria-label="Добавить счётчик">
+    <button id="btn-add-counter" class="fab" data-i18n-aria="addCounter" aria-label="Добавить счётчик">
       <span>+</span>
     </button>
   </section>
@@ -46,19 +46,19 @@
   <!-- ===== ЭКРАН: КАРТОЧКА ПЕРСОНАЖА ===== -->
   <section id="view-detail" class="view">
     <header class="app-header detail-header">
-      <button class="icon-btn back-btn" id="btn-back-home" aria-label="Назад">←</button>
+      <button class="icon-btn back-btn" id="btn-back-home" data-i18n-aria="back" aria-label="Назад">←</button>
       <div class="detail-title">
         <span id="detail-emoji" class="detail-emoji">👵</span>
         <h1 id="detail-name">Тёща</h1>
       </div>
-      <button class="icon-btn" id="btn-delete-counter" title="В архив" aria-label="Переместить в архив">📦</button>
+      <button class="icon-btn" id="btn-delete-counter" data-i18n-title="moveToArchive" data-i18n-aria="moveToArchive" title="В архив" aria-label="Переместить в архив">📦</button>
     </header>
 
     <div class="detail-scroll">
 
       <div class="score-banner" id="score-banner">
         <div class="score-big" id="score-total">0</div>
-        <div class="score-label">раз оказал(ась) прав(а)</div>
+        <div class="score-label" data-i18n="scoreLabel">раз оказал(ась) прав(а)</div>
         <div class="score-quip" id="score-quip">Пока тишина. Затишье перед бурей?</div>
         <div class="streak-chip hidden" id="streak-chip">🔥 0 дней подряд</div>
       </div>
@@ -66,29 +66,29 @@
       <div class="mini-stats">
         <div class="mini-stat">
           <div class="mini-stat-num" id="stat-today">0</div>
-          <div class="mini-stat-label">сегодня</div>
+          <div class="mini-stat-label" data-i18n="statToday">сегодня</div>
         </div>
         <div class="mini-stat">
           <div class="mini-stat-num" id="stat-week">0</div>
-          <div class="mini-stat-label">на этой неделе</div>
+          <div class="mini-stat-label" data-i18n="statWeek">на этой неделе</div>
         </div>
         <div class="mini-stat">
           <div class="mini-stat-num" id="stat-prev-week">0</div>
-          <div class="mini-stat-label">на прошлой</div>
+          <div class="mini-stat-label" data-i18n="statPrevWeek">на прошлой</div>
         </div>
       </div>
 
       <div class="tap-zone">
         <div class="tap-row">
-          <button id="btn-tap" class="tap-btn" aria-label="Засчитать правоту">
+          <button id="btn-tap" class="tap-btn" data-i18n-aria="tapAria" aria-label="Засчитать правоту">
             <span id="tap-emoji">👵</span>
-            <span class="tap-hint">ТАП!</span>
+            <span class="tap-hint" data-i18n="tapHint">ТАП!</span>
           </button>
-          <button id="btn-tap-comment" class="comment-fab" title="Тап с комментарием" aria-label="Тап с комментарием">💬</button>
+          <button id="btn-tap-comment" class="comment-fab" data-i18n-title="tapWithComment" data-i18n-aria="tapWithComment" title="Тап с комментарием" aria-label="Тап с комментарием">💬</button>
         </div>
         <div class="tap-links">
-          <button id="btn-undo" class="undo-btn">↩ отменить последний тап</button>
-          <button id="btn-open-history" class="undo-btn">📜 история и комментарии</button>
+          <button id="btn-undo" class="undo-btn" data-i18n="undoLast">↩ отменить последний тап</button>
+          <button id="btn-open-history" class="undo-btn" data-i18n="openHistory">📜 история и комментарии</button>
         </div>
       </div>
 
@@ -97,12 +97,12 @@
       </div>
 
       <div class="chart-card">
-        <h2>Тапы по дням (7 дней)</h2>
+        <h2 data-i18n="chartDaily">Тапы по дням (7 дней)</h2>
         <div class="chart" id="chart-week"></div>
       </div>
 
       <div class="chart-card">
-        <h2>По неделям</h2>
+        <h2 data-i18n="chartWeekly">По неделям</h2>
         <div class="chart" id="chart-weeks"></div>
       </div>
 
@@ -112,7 +112,7 @@
   <!-- ===== ЭКРАН: ИСТОРИЯ ТАПОВ ===== -->
   <section id="view-history" class="view">
     <header class="app-header">
-      <button class="icon-btn back-btn" id="btn-back-from-history" aria-label="Назад">←</button>
+      <button class="icon-btn back-btn" id="btn-back-from-history" data-i18n-aria="back" aria-label="Назад">←</button>
       <div class="detail-title">
         <h1 id="history-title">История</h1>
       </div>
@@ -122,7 +122,7 @@
       <div id="history-list" class="history-list"></div>
       <div id="history-empty" class="empty-state hidden">
         <div class="empty-emoji">🗒️</div>
-        <p>Тапов пока нет.</p>
+        <p data-i18n="historyEmpty">Тапов пока нет.</p>
       </div>
     </div>
   </section>
@@ -130,8 +130,8 @@
   <!-- ===== ЭКРАН: НАСТРОЙКИ ===== -->
   <section id="view-settings" class="view">
     <header class="app-header">
-      <button class="icon-btn back-btn" id="btn-back-from-settings" aria-label="Назад">←</button>
-      <div class="detail-title"><h1>Настройки</h1></div>
+      <button class="icon-btn back-btn" id="btn-back-from-settings" data-i18n-aria="back" aria-label="Назад">←</button>
+      <div class="detail-title"><h1 data-i18n="settings">Настройки</h1></div>
       <span style="width:42px"></span>
     </header>
     <div class="detail-scroll">
@@ -139,8 +139,22 @@
       <div class="settings-card">
         <div class="settings-row">
           <div class="settings-row-label">
-            <div class="settings-row-title">🔊 Звук при тапе</div>
-            <div class="settings-row-sub">Короткий звук в момент тапа</div>
+            <div class="settings-row-title" data-i18n="langTitle">🌐 Язык</div>
+            <div class="settings-row-sub" data-i18n="langSub">Авто — по языку телефона</div>
+          </div>
+        </div>
+        <div class="segmented" id="lang-segmented">
+          <button class="segmented-btn" data-lang="auto" data-i18n="langAuto">Авто</button>
+          <button class="segmented-btn" data-lang="ru">RU</button>
+          <button class="segmented-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title" data-i18n="soundTitle">🔊 Звук при тапе</div>
+            <div class="settings-row-sub" data-i18n="soundSub">Короткий звук в момент тапа</div>
           </div>
           <label class="switch">
             <input type="checkbox" id="chk-sound">
@@ -149,8 +163,8 @@
         </div>
         <div class="settings-row">
           <div class="settings-row-label">
-            <div class="settings-row-title">📳 Вибрация при тапе</div>
-            <div class="settings-row-sub">Короткий отклик на телефоне</div>
+            <div class="settings-row-title" data-i18n="vibroTitle">📳 Вибрация при тапе</div>
+            <div class="settings-row-sub" data-i18n="vibroSub">Короткий отклик на телефоне</div>
           </div>
           <label class="switch">
             <input type="checkbox" id="chk-vibro">
@@ -160,10 +174,10 @@
       </div>
 
       <div class="settings-card">
-        <h2 class="settings-card-title">Резервная копия</h2>
-        <p class="settings-hint">Все данные хранятся только на этом устройстве. Сделай бэкап, чтобы не потерять историю при смене телефона.</p>
-        <button id="btn-export-data" class="secondary-btn">⬇️ Экспортировать данные (.json)</button>
-        <button id="btn-import-data" class="secondary-btn">⬆️ Импортировать из файла</button>
+        <h2 class="settings-card-title" data-i18n="backupTitle">Резервная копия</h2>
+        <p class="settings-hint" data-i18n="backupHint">Все данные хранятся только на этом устройстве. Сделай бэкап, чтобы не потерять историю при смене телефона.</p>
+        <button id="btn-export-data" class="secondary-btn" data-i18n="exportBtn">⬇️ Экспортировать данные (.json)</button>
+        <button id="btn-import-data" class="secondary-btn" data-i18n="importBtn">⬆️ Импортировать из файла</button>
         <input type="file" id="input-import-file" accept="application/json" class="hidden">
       </div>
 
@@ -173,16 +187,16 @@
   <!-- ===== ЭКРАН: АРХИВ ===== -->
   <section id="view-archive" class="view">
     <header class="app-header">
-      <button class="icon-btn back-btn" id="btn-back-home-3" aria-label="Назад">←</button>
-      <div class="detail-title"><h1>Архив</h1></div>
+      <button class="icon-btn back-btn" id="btn-back-home-3" data-i18n-aria="back" aria-label="Назад">←</button>
+      <div class="detail-title"><h1 data-i18n="archive">Архив</h1></div>
       <span style="width:42px"></span>
     </header>
     <div class="detail-scroll">
-      <p class="archive-hint">Персонажи отсюда не удаляются насовсем автоматически — их можно вернуть или стереть окончательно.</p>
+      <p class="archive-hint" data-i18n="archiveHint">Персонажи отсюда не удаляются насовсем автоматически — их можно вернуть или стереть окончательно.</p>
       <div id="archive-list" class="summary-list"></div>
       <div id="archive-empty" class="empty-state hidden">
         <div class="empty-emoji">📦</div>
-        <p>В архиве пока пусто.</p>
+        <p data-i18n="archiveEmpty">В архиве пока пусто.</p>
       </div>
     </div>
   </section>
@@ -190,15 +204,15 @@
   <!-- ===== ЭКРАН: ОБЩАЯ СТАТИСТИКА ===== -->
   <section id="view-summary" class="view">
     <header class="app-header">
-      <button class="icon-btn back-btn" id="btn-back-home-2" aria-label="Назад">←</button>
-      <div class="detail-title"><h1>Итоги недели</h1></div>
+      <button class="icon-btn back-btn" id="btn-back-home-2" data-i18n-aria="back" aria-label="Назад">←</button>
+      <div class="detail-title"><h1 data-i18n="weekResults">Итоги недели</h1></div>
       <span style="width:40px"></span>
     </header>
     <div class="detail-scroll">
       <div id="summary-list" class="summary-list"></div>
       <div id="summary-empty" class="empty-state hidden">
         <div class="empty-emoji">🤷</div>
-        <p>Добавь хотя бы одного персонажа, чтобы увидеть рейтинг правоты.</p>
+        <p data-i18n="summaryEmpty">Добавь хотя бы одного персонажа, чтобы увидеть рейтинг правоты.</p>
       </div>
     </div>
   </section>
@@ -209,22 +223,22 @@
 <div id="modal-add" class="modal-overlay hidden">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <h2>Кто на этот раз?</h2>
+    <h2 data-i18n="addModalTitle">Кто на этот раз?</h2>
 
     <div class="preset-grid" id="preset-grid"></div>
 
     <div class="custom-form">
-      <p class="custom-label">Или свой вариант:</p>
+      <p class="custom-label" data-i18n="customLabel">Или свой вариант:</p>
       <div class="custom-row">
         <button id="btn-pick-emoji" class="emoji-picker-btn">😀</button>
-        <input id="input-custom-name" type="text" placeholder="Имя / прозвище" maxlength="20">
+        <input id="input-custom-name" type="text" data-i18n-placeholder="customNamePlaceholder" placeholder="Имя / прозвище" maxlength="20">
       </div>
       <div class="emoji-palette hidden" id="emoji-palette"></div>
       <div class="color-row" id="color-row"></div>
-      <button id="btn-add-custom" class="primary-btn">Добавить</button>
+      <button id="btn-add-custom" class="primary-btn" data-i18n="addBtn">Добавить</button>
     </div>
 
-    <button id="btn-close-modal" class="close-btn" aria-label="Закрыть">✕</button>
+    <button id="btn-close-modal" class="close-btn" data-i18n-aria="close" aria-label="Закрыть">✕</button>
   </div>
 </div>
 
@@ -236,19 +250,19 @@
 
     <div class="pattern-chips" id="pattern-chips"></div>
 
-    <textarea id="input-comment-text" class="comment-textarea" rows="3" maxlength="200" placeholder="Почему был(а) прав(а)? (необязательно)"></textarea>
+    <textarea id="input-comment-text" class="comment-textarea" rows="3" maxlength="200" data-i18n-placeholder="commentPlaceholder" placeholder="Почему был(а) прав(а)? (необязательно)"></textarea>
 
     <label class="save-pattern-row">
       <input type="checkbox" id="chk-save-pattern" checked>
-      Сохранить как паттерн для быстрого выбора
+      <span data-i18n="savePatternLabel">Сохранить как паттерн для быстрого выбора</span>
     </label>
 
     <div class="comment-modal-actions">
-      <button id="btn-comment-delete" class="danger-btn hidden">Удалить тап</button>
+      <button id="btn-comment-delete" class="danger-btn hidden" data-i18n="deleteTapBtn">Удалить тап</button>
       <button id="btn-comment-submit" class="primary-btn">Тап!</button>
     </div>
 
-    <button id="btn-close-comment-modal" class="close-btn" aria-label="Закрыть">✕</button>
+    <button id="btn-close-comment-modal" class="close-btn" data-i18n-aria="close" aria-label="Закрыть">✕</button>
   </div>
 </div>
 
