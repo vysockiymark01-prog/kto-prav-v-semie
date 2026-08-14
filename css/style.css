@@ -703,7 +703,9 @@ html, body {
 .switch input:checked + .slider::before { transform: translateX(20px); }
 
 .secondary-btn {
+  display: block;
   width: 100%;
+  box-sizing: border-box;
   background: #FFF1E9;
   color: var(--coral-dark);
   border: none;
@@ -711,6 +713,8 @@ html, body {
   padding: 13px;
   font-weight: 700;
   font-size: 0.92rem;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
   margin-bottom: 10px;
 }
