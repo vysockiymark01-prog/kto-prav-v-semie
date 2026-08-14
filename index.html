@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#FF5A7A">
+<meta name="description" content="Кто прав в семье? — шуточный трекер, кто чаще оказывается прав.">
+<title>Кто прав в семье?</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===== ЭКРАН: СПИСОК СЧЁТЧИКОВ ===== -->
+  <section id="view-home" class="view active">
+    <header class="app-header">
+      <div class="app-title">
+        <span class="logo-emoji">🤔</span>
+        <h1>Кто прав в семье?</h1>
+      </div>
+      <div class="header-actions">
+        <button id="btn-open-archive" class="icon-btn" title="Архив" aria-label="Архив">
+          📦<span id="archive-badge" class="badge hidden">0</span>
+        </button>
+        <button id="btn-open-stats-summary" class="icon-btn" title="Общая статистика" aria-label="Общая статистика">📊</button>
+        <button id="btn-open-settings" class="icon-btn" title="Настройки" aria-label="Настройки">⚙️</button>
+      </div>
+    </header>
+
+    <div id="home-list" class="counter-list"></div>
+
+    <div id="home-empty" class="empty-state hidden">
+      <div class="empty-emoji">🕊️</div>
+      <p>Пока никого нет. Добавь первого «правого» — и понеслась.</p>
+    </div>
+
+    <button id="btn-add-counter" class="fab" aria-label="Добавить счётчик">
+      <span>+</span>
+    </button>
+  </section>
+
+  <!-- ===== ЭКРАН: КАРТОЧКА ПЕРСОНАЖА ===== -->
+  <section id="view-detail" class="view">
+    <header class="app-header detail-header">
+      <button class="icon-btn back-btn" id="btn-back-home" aria-label="Назад">←</button>
+      <div class="detail-title">
+        <span id="detail-emoji" class="detail-emoji">👵</span>
+        <h1 id="detail-name">Тёща</h1>
+      </div>
+      <button class="icon-btn" id="btn-delete-counter" title="В архив" aria-label="Переместить в архив">📦</button>
+    </header>
+
+    <div class="detail-scroll">
+
+      <div class="score-banner" id="score-banner">
+        <div class="score-big" id="score-total">0</div>
+        <div class="score-label">раз оказал(ась) прав(а)</div>
+        <div class="score-quip" id="score-quip">Пока тишина. Затишье перед бурей?</div>
+        <div class="streak-chip hidden" id="streak-chip">🔥 0 дней подряд</div>
+      </div>
+
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat-num" id="stat-today">0</div>
+          <div class="mini-stat-label">сегодня</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-num" id="stat-week">0</div>
+          <div class="mini-stat-label">на этой неделе</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-num" id="stat-prev-week">0</div>
+          <div class="mini-stat-label">на прошлой</div>
+        </div>
+      </div>
+
+      <div class="tap-zone">
+        <div class="tap-row">
+          <button id="btn-tap" class="tap-btn" aria-label="Засчитать правоту">
+            <span id="tap-emoji">👵</span>
+            <span class="tap-hint">ТАП!</span>
+          </button>
+          <button id="btn-tap-comment" class="comment-fab" title="Тап с комментарием" aria-label="Тап с комментарием">💬</button>
+        </div>
+        <div class="tap-links">
+          <button id="btn-undo" class="undo-btn">↩ отменить последний тап</button>
+          <button id="btn-open-history" class="undo-btn">📜 история и комментарии</button>
+        </div>
+      </div>
+
+      <div class="achievement-badge" id="achievement-badge">
+        <span id="achievement-text">Легенда только начинается</span>
+      </div>
+
+      <div class="chart-card">
+        <h2>Тапы по дням (7 дней)</h2>
+        <div class="chart" id="chart-week"></div>
+      </div>
+
+      <div class="chart-card">
+        <h2>По неделям</h2>
+        <div class="chart" id="chart-weeks"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: ИСТОРИЯ ТАПОВ ===== -->
+  <section id="view-history" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-from-history" aria-label="Назад">←</button>
+      <div class="detail-title">
+        <h1 id="history-title">История</h1>
+      </div>
+      <span style="width:42px"></span>
+    </header>
+    <div class="detail-scroll">
+      <div id="history-list" class="history-list"></div>
+      <div id="history-empty" class="empty-state hidden">
+        <div class="empty-emoji">🗒️</div>
+        <p>Тапов пока нет.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: НАСТРОЙКИ ===== -->
+  <section id="view-settings" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-from-settings" aria-label="Назад">←</button>
+      <div class="detail-title"><h1>Настройки</h1></div>
+      <span style="width:42px"></span>
+    </header>
+    <div class="detail-scroll">
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title">🔊 Звук при тапе</div>
+            <div class="settings-row-sub">Короткий звук в момент тапа</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-sound">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title">📳 Вибрация при тапе</div>
+            <div class="settings-row-sub">Короткий отклик на телефоне</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-vibro">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h2 class="settings-card-title">Резервная копия</h2>
+        <p class="settings-hint">Все данные хранятся только на этом устройстве. Сделай бэкап, чтобы не потерять историю при смене телефона.</p>
+        <button id="btn-export-data" class="secondary-btn">⬇️ Экспортировать данные (.json)</button>
+        <button id="btn-import-data" class="secondary-btn">⬆️ Импортировать из файла</button>
+        <input type="file" id="input-import-file" accept="application/json" class="hidden">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: АРХИВ ===== -->
+  <section id="view-archive" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-home-3" aria-label="Назад">←</button>
+      <div class="detail-title"><h1>Архив</h1></div>
+      <span style="width:42px"></span>
+    </header>
+    <div class="detail-scroll">
+      <p class="archive-hint">Персонажи отсюда не удаляются насовсем автоматически — их можно вернуть или стереть окончательно.</p>
+      <div id="archive-list" class="summary-list"></div>
+      <div id="archive-empty" class="empty-state hidden">
+        <div class="empty-emoji">📦</div>
+        <p>В архиве пока пусто.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: ОБЩАЯ СТАТИСТИКА ===== -->
+  <section id="view-summary" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-home-2" aria-label="Назад">←</button>
+      <div class="detail-title"><h1>Итоги недели</h1></div>
+      <span style="width:40px"></span>
+    </header>
+    <div class="detail-scroll">
+      <div id="summary-list" class="summary-list"></div>
+      <div id="summary-empty" class="empty-state hidden">
+        <div class="empty-emoji">🤷</div>
+        <p>Добавь хотя бы одного персонажа, чтобы увидеть рейтинг правоты.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===== МОДАЛКА: ДОБАВИТЬ СЧЁТЧИК ===== -->
+<div id="modal-add" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h2>Кто на этот раз?</h2>
+
+    <div class="preset-grid" id="preset-grid"></div>
+
+    <div class="custom-form">
+      <p class="custom-label">Или свой вариант:</p>
+      <div class="custom-row">
+        <button id="btn-pick-emoji" class="emoji-picker-btn">😀</button>
+        <input id="input-custom-name" type="text" placeholder="Имя / прозвище" maxlength="20">
+      </div>
+      <div class="emoji-palette hidden" id="emoji-palette"></div>
+      <div class="color-row" id="color-row"></div>
+      <button id="btn-add-custom" class="primary-btn">Добавить</button>
+    </div>
+
+    <button id="btn-close-modal" class="close-btn" aria-label="Закрыть">✕</button>
+  </div>
+</div>
+
+<!-- ===== МОДАЛКА: КОММЕНТАРИЙ К ТАПУ ===== -->
+<div id="modal-comment" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h2 id="comment-modal-title">Тап с комментарием</h2>
+
+    <div class="pattern-chips" id="pattern-chips"></div>
+
+    <textarea id="input-comment-text" class="comment-textarea" rows="3" maxlength="200" placeholder="Почему был(а) прав(а)? (необязательно)"></textarea>
+
+    <label class="save-pattern-row">
+      <input type="checkbox" id="chk-save-pattern" checked>
+      Сохранить как паттерн для быстрого выбора
+    </label>
+
+    <div class="comment-modal-actions">
+      <button id="btn-comment-delete" class="danger-btn hidden">Удалить тап</button>
+      <button id="btn-comment-submit" class="primary-btn">Тап!</button>
+    </div>
+
+    <button id="btn-close-comment-modal" class="close-btn" aria-label="Закрыть">✕</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
