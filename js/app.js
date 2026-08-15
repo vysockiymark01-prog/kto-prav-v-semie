@@ -87,6 +87,9 @@ const I18N = {
       importParseError: 'Не удалось прочитать файл',
       importFormatError: 'Файл не похож на бэкап этого приложения',
       importedToast: 'Данные импортированы',
+      confirmTitle: 'Подтвердите действие',
+      confirmCancel: 'Отмена',
+      confirmOk: 'Да',
       streakText: (n) => `🔥 ${n} ${ruPluralDaysWord(n)} подряд`,
     },
     presets: [
@@ -208,6 +211,9 @@ const I18N = {
       importParseError: "Couldn't read the file",
       importFormatError: "This file doesn't look like a backup from this app",
       importedToast: 'Data imported',
+      confirmTitle: 'Confirm action',
+      confirmCancel: 'Cancel',
+      confirmOk: 'Yes',
       streakText: (n) => `🔥 ${n}-day streak`,
     },
     presets: [
@@ -746,6 +752,25 @@ function showToast(text) {
   toastTimer = setTimeout(() => el.classList.add('hidden'), 2200);
 }
 
+// ---------- Модалка подтверждения (замена нативного confirm()) ----------
+let confirmResolve = null;
+
+function showConfirm(message) {
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    document.getElementById('confirm-message').textContent = message;
+    document.getElementById('modal-confirm').classList.remove('hidden');
+  });
+}
+
+function closeConfirm(result) {
+  document.getElementById('modal-confirm').classList.add('hidden');
+  if (confirmResolve) {
+    confirmResolve(result);
+    confirmResolve = null;
+  }
+}
+
 // ---------- Архив ----------
 function archiveCounter(id) {
   const c = state.counters.find(x => x.id === id);
@@ -772,10 +797,10 @@ function restoreCounter(id) {
   showToast(t('restoredToast', c.name));
 }
 
-function deleteForever(id) {
+async function deleteForever(id) {
   const c = state.counters.find(x => x.id === id);
   if (!c) return;
-  if (!confirm(t('deleteForeverConfirm', c.name))) return;
+  if (!(await showConfirm(t('deleteForeverConfirm', c.name)))) return;
   state.counters = state.counters.filter(x => x.id !== id);
   saveState();
   renderArchive();
@@ -1020,10 +1045,10 @@ function submitCommentModal() {
   }
 }
 
-function deleteTapFromModal() {
+async function deleteTapFromModal() {
   const c = getCurrentCounter();
   if (!c || !commentModalTapId) return;
-  if (!confirm(t('deleteTapConfirm'))) return;
+  if (!(await showConfirm(t('deleteTapConfirm')))) return;
   c.taps = c.taps.filter(tap => tap.id !== commentModalTapId);
   saveState();
   closeCommentModal();
@@ -1107,7 +1132,7 @@ function exportData() {
 
 function importDataFromFile(file) {
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     let parsed;
     try {
       parsed = JSON.parse(e.target.result);
@@ -1119,7 +1144,7 @@ function importDataFromFile(file) {
       showToast(t('importFormatError'));
       return;
     }
-    if (!confirm(t('importConfirm'))) return;
+    if (!(await showConfirm(t('importConfirm')))) return;
     state = parsed;
     if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto' };
     if (!['auto', 'ru', 'en'].includes(state.settings.lang)) state.settings.lang = 'auto';
@@ -1188,6 +1213,12 @@ function init() {
   document.getElementById('btn-back-home').addEventListener('click', goHome);
   document.getElementById('btn-back-home-2').addEventListener('click', goHome);
   document.getElementById('btn-delete-counter').addEventListener('click', handleDelete);
+
+  document.getElementById('btn-confirm-cancel').addEventListener('click', () => closeConfirm(false));
+  document.getElementById('btn-confirm-ok').addEventListener('click', () => closeConfirm(true));
+  document.getElementById('modal-confirm').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-confirm') closeConfirm(false);
+  });
 
   document.getElementById('btn-tap').addEventListener('click', handleTap);
   document.getElementById('btn-undo').addEventListener('click', handleUndo);

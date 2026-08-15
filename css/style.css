@@ -809,4 +809,12 @@ html, body {
 .danger-btn.hidden { display: none; }
 
 .comment-modal-actions .primary-btn { flex: 2; margin: 0; }
+
+.confirm-message {
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+.confirm-sheet .comment-modal-actions .secondary-btn { flex: 1; margin: 0; }
+.confirm-sheet .comment-modal-actions .danger-btn { flex: 1; }
 .pop { animation: pop 0.3s ease; }
