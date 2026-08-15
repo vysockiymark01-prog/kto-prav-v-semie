@@ -38,6 +38,11 @@ const I18N = {
       langTitle: '🌐 Язык',
       langSub: 'Авто — по языку телефона',
       langAuto: 'Авто',
+      themeTitle: '🌗 Тема',
+      themeSub: 'Авто — по теме телефона',
+      themeAuto: 'Авто',
+      themeLight: 'Светлая',
+      themeDark: 'Тёмная',
       soundTitle: '🔊 Звук при тапе',
       soundSub: 'Короткий звук в момент тапа',
       vibroTitle: '📳 Вибрация при тапе',
@@ -162,6 +167,11 @@ const I18N = {
       langTitle: '🌐 Language',
       langSub: 'Auto — matches your phone language',
       langAuto: 'Auto',
+      themeTitle: '🌗 Theme',
+      themeSub: 'Auto — matches your phone theme',
+      themeAuto: 'Auto',
+      themeLight: 'Light',
+      themeDark: 'Dark',
       soundTitle: '🔊 Sound on tap',
       soundSub: 'A short sound on every tap',
       vibroTitle: '📳 Vibration on tap',
@@ -287,7 +297,7 @@ function getAchievements() { return I18N[currentLang()].achievements; }
 const EMOJI_CHOICES = ['😀', '😎', '🥲', '🤨', '🧐', '😤', '🙄', '😇', '🤷', '🤷‍♀️', '🤷‍♂️', '👻', '🐱', '🐶', '🦄', '🔥', '👑', '💅', '🫡', '🧙', '🧑‍🍳', '🐍', '🦉', '🐢'];
 const COLOR_CHOICES = ['#FF5A7A', '#1FC8C0', '#FFC93C', '#8B5CF6', '#5AA9FF', '#FF9F5A'];
 
-let state = { counters: [], settings: { sound: true, vibro: true, lang: 'auto' } };
+let state = { counters: [], settings: { sound: true, vibro: true, lang: 'auto', theme: 'auto' } };
 let currentId = null;
 let pendingEmoji = '😀';
 let pendingColor = COLOR_CHOICES[0];
@@ -303,10 +313,11 @@ function loadState() {
     if (raw) state = JSON.parse(raw);
   } catch (e) { console.warn('Не удалось прочитать данные', e); }
   if (!state.counters) state.counters = [];
-  if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto' };
+  if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto', theme: 'auto' };
   if (typeof state.settings.sound !== 'boolean') state.settings.sound = true;
   if (typeof state.settings.vibro !== 'boolean') state.settings.vibro = true;
   if (!['auto', 'ru', 'en'].includes(state.settings.lang)) state.settings.lang = 'auto';
+  if (!['auto', 'light', 'dark'].includes(state.settings.theme)) state.settings.theme = 'auto';
 
   // Миграция старого формата тапов (числа) в новый (объекты с id/ts/note)
   state.counters.forEach(c => {
@@ -1105,12 +1116,31 @@ function renderSettings() {
   document.getElementById('chk-sound').checked = state.settings.sound;
   document.getElementById('chk-vibro').checked = state.settings.vibro;
   updateLangSegmentedUI();
+  updateThemeSegmentedUI();
 }
 
 function updateLangSegmentedUI() {
   const pref = state.settings.lang || 'auto';
   document.querySelectorAll('#lang-segmented .segmented-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === pref);
+  });
+}
+
+// ---------- Тема ----------
+function applyTheme() {
+  const pref = (state.settings && state.settings.theme) || 'auto';
+  document.getElementById('html-root').setAttribute('data-theme', pref);
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    const isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    metaTheme.setAttribute('content', isDark ? '#1B1420' : '#FF5A7A');
+  }
+}
+
+function updateThemeSegmentedUI() {
+  const pref = (state.settings && state.settings.theme) || 'auto';
+  document.querySelectorAll('#theme-segmented .segmented-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.themeOption === pref);
   });
 }
 
@@ -1146,13 +1176,15 @@ function importDataFromFile(file) {
     }
     if (!(await showConfirm(t('importConfirm')))) return;
     state = parsed;
-    if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto' };
+    if (!state.settings) state.settings = { sound: true, vibro: true, lang: 'auto', theme: 'auto' };
     if (!['auto', 'ru', 'en'].includes(state.settings.lang)) state.settings.lang = 'auto';
+    if (!['auto', 'light', 'dark'].includes(state.settings.theme)) state.settings.theme = 'auto';
     state.counters.forEach(c => {
       if (!Array.isArray(c.patterns)) c.patterns = [];
       c.taps = (c.taps || []).map(tap => typeof tap === 'number' ? { id: uid(), ts: tap, note: '' } : tap);
     });
     saveState();
+    applyTheme();
     applyLanguage();
     goHome();
     showToast(t('importedToast'));
@@ -1201,6 +1233,7 @@ function applyLanguage() {
 // ---------- Инициализация ----------
 function init() {
   loadState();
+  applyTheme();
   applyStaticTranslations();
   goHome();
 
@@ -1276,6 +1309,19 @@ function init() {
       applyLanguage();
     });
   });
+  document.querySelectorAll('#theme-segmented .segmented-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.settings.theme = btn.dataset.themeOption;
+      saveState();
+      applyTheme();
+      updateThemeSegmentedUI();
+    });
+  });
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if ((state.settings.theme || 'auto') === 'auto') applyTheme();
+    });
+  }
   document.getElementById('btn-export-data').addEventListener('click', exportData);
   document.getElementById('btn-import-data').addEventListener('click', () => {
     document.getElementById('input-import-file').click();

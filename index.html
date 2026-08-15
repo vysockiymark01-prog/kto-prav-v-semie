@@ -9,6 +9,18 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>
+  (function () {
+    try {
+      var raw = localStorage.getItem('ktoprav_counters_v1');
+      var theme = raw ? (JSON.parse(raw).settings || {}).theme : null;
+      if (!['auto', 'light', 'dark'].includes(theme)) theme = 'auto';
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'auto');
+    }
+  })();
+</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -147,6 +159,20 @@
           <button class="segmented-btn" data-lang="auto" data-i18n="langAuto">Авто</button>
           <button class="segmented-btn" data-lang="ru">RU</button>
           <button class="segmented-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-label">
+            <div class="settings-row-title" data-i18n="themeTitle">🌗 Тема</div>
+            <div class="settings-row-sub" data-i18n="themeSub">Авто — по теме телефона</div>
+          </div>
+        </div>
+        <div class="segmented" id="theme-segmented">
+          <button class="segmented-btn" data-theme-option="auto" data-i18n="themeAuto">Авто</button>
+          <button class="segmented-btn" data-theme-option="light" data-i18n="themeLight">Светлая</button>
+          <button class="segmented-btn" data-theme-option="dark" data-i18n="themeDark">Тёмная</button>
         </div>
       </div>
 
