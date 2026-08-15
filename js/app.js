@@ -415,12 +415,39 @@ function findAchievement(total) {
 }
 
 // ---------- Навигация ----------
+// Каждый переход вглубь (детали, история, настройки, архив, статистика) кладёт запись в
+// историю браузера. Аппаратная кнопка/жест "назад" на Android тем самым сначала возвращает
+// пользователя на предыдущий экран приложения и только потом (когда стек исчерпан) закрывает
+// само приложение — вместо того чтобы выходить сразу с любого экрана.
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
+function renderView(id) {
+  switch (id) {
+    case 'view-home': renderHome(); break;
+    case 'view-detail': renderDetail(); break;
+    case 'view-history': renderHistory(); break;
+    case 'view-settings': renderSettings(); break;
+    case 'view-archive': renderArchive(); break;
+    case 'view-summary': renderSummary(); break;
+  }
+}
+
+function navigateTo(id) {
+  history.pushState({ view: id }, '', location.href);
+  renderView(id);
+  showView(id);
+}
+
 function goHome() {
+  // Если мы куда-то заходили из главного экрана, "домой" — это просто шаг назад по истории:
+  // тогда сработает единый popstate-обработчик и стек истории останется в согласованном виде.
+  if (history.state && history.state.view && history.state.view !== 'view-home') {
+    history.back();
+    return;
+  }
   renderHome();
   showView('view-home');
 }
@@ -556,8 +583,7 @@ function escapeHtml(str) {
 // ---------- Рендер: карточка персонажа ----------
 function openDetail(id) {
   currentId = id;
-  renderDetail();
-  showView('view-detail');
+  navigateTo('view-detail');
 }
 
 function getCurrentCounter() {
@@ -1235,7 +1261,14 @@ function init() {
   loadState();
   applyTheme();
   applyStaticTranslations();
+  history.replaceState({ view: 'view-home' }, '', location.href);
   goHome();
+
+  window.addEventListener('popstate', (e) => {
+    const view = (e.state && e.state.view) || 'view-home';
+    renderView(view);
+    showView(view);
+  });
 
   document.getElementById('btn-add-counter').addEventListener('click', openAddModal);
   document.getElementById('btn-close-modal').addEventListener('click', closeAddModal);
@@ -1262,13 +1295,11 @@ function init() {
   document.getElementById('btn-add-custom').addEventListener('click', handleAddCustom);
 
   document.getElementById('btn-open-stats-summary').addEventListener('click', () => {
-    renderSummary();
-    showView('view-summary');
+    navigateTo('view-summary');
   });
 
   document.getElementById('btn-open-archive').addEventListener('click', () => {
-    renderArchive();
-    showView('view-archive');
+    navigateTo('view-archive');
   });
   document.getElementById('btn-back-home-3').addEventListener('click', goHome);
 
@@ -1283,15 +1314,13 @@ function init() {
 
   // ---- История ----
   document.getElementById('btn-open-history').addEventListener('click', () => {
-    renderHistory();
-    showView('view-history');
+    navigateTo('view-history');
   });
-  document.getElementById('btn-back-from-history').addEventListener('click', () => showView('view-detail'));
+  document.getElementById('btn-back-from-history').addEventListener('click', () => history.back());
 
   // ---- Настройки ----
   document.getElementById('btn-open-settings').addEventListener('click', () => {
-    renderSettings();
-    showView('view-settings');
+    navigateTo('view-settings');
   });
   document.getElementById('btn-back-from-settings').addEventListener('click', goHome);
   document.getElementById('chk-sound').addEventListener('change', (e) => {
