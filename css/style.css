@@ -20,6 +20,7 @@ html, body {
   background: linear-gradient(180deg, #FFE9D6 0%, #FFF6EF 30%);
   color: var(--ink);
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -29,10 +30,12 @@ html, body {
   min-height: 100vh;
   position: relative;
   padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: none;
 }
 
 .view { display: none; min-height: 100vh; }
 .view.active { display: block; }
+.view, .detail-scroll { overscroll-behavior-y: contain; }
 
 /* ===== Header ===== */
 .app-header {
