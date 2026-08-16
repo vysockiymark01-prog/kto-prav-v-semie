@@ -97,7 +97,44 @@ const I18N = {
       confirmCancel: 'Отмена',
       confirmOk: 'Да',
       streakText: (n) => `🔥 ${n} ${ruPluralDaysWord(n)} подряд`,
+      feedTitle: 'Лента событий',
+      feedEmpty: 'Пока нет ни одного тапа.',
+      compareTitle: 'Кто кого?',
+      compare: 'Сравнение',
+      comparePick1: 'Первый',
+      comparePick2: 'Второй',
+      compareBtn: 'Сравнить',
+      compareNeedTwo: 'Выбери двух разных персонажей',
+      compareVs: 'против',
+      compareWinner: (name) => `👑 Пока побеждает: ${name}`,
+      compareTie: '🤝 Пока ничья',
+      streakLeadersTitle: 'Лидеры по сериям 🔥',
+      streakLeadersEmpty: 'Пока ни у кого нет серии подряд идущих дней.',
+      shareResults: '📤 Поделиться итогами',
+      shareTitle: (n) => `Итоги недели — ${n}`,
+      shareGenerating: 'Готовим картинку...',
+      shareFallbackSaved: 'Картинка сохранена',
+      photoPickBtn: '🖼️ Фото',
+      photoRemoveBtn: '❌ Убрать фото',
+      changePhotoAria: 'Изменить фото',
+      micAria: 'Голосовой ввод',
+      micListening: '🎙️ Слушаю...',
+      micUnsupported: 'Голосовой ввод не поддерживается на этом устройстве',
     },
+    predictions: [
+      'Сегодня кто-то один точно окажется прав. Вопрос — кто первым нажмёт кнопку.',
+      'Звёзды говорят: сегодня разговор о мелочи затянется минимум на 10 минут.',
+      'Прогноз дня: количество "я же говорил(а)" превысит норму.',
+      'Сегодня хороший день, чтобы признать чужую правоту. Но вряд ли кто-то признает.',
+      'Внимание: вероятность спора о посуде сегодня повышена.',
+      'Сегодня побеждает не тот, кто прав, а тот, кто громче.',
+      'День пройдёт спокойно. Наверное. Скорее всего нет.',
+      'Совет дня: соглашайтесь сразу — сэкономите 20 минут и нервы.',
+      'Сегодня отличный день для нового рекорда правоты.',
+      'Кто-то сегодня скажет "ладно, проехали" — и все поймут, что это неправда.',
+      'Сегодня явно кто-то забыл, кто выносит мусор. Спойлер: не он(а).',
+      'Прогноз: минимум один "ты сам(а) так сказал(а)" в течение дня.',
+    ],
     presets: [
       { name: 'Тёща', emoji: '👵', color: '#FF5A7A' },
       { name: 'Тесть', emoji: '👴', color: '#1FC8C0' },
@@ -227,7 +264,44 @@ const I18N = {
       confirmCancel: 'Cancel',
       confirmOk: 'Yes',
       streakText: (n) => `🔥 ${n}-day streak`,
+      feedTitle: 'Activity feed',
+      feedEmpty: 'No taps yet.',
+      compareTitle: 'Who beats whom?',
+      compare: 'Compare',
+      comparePick1: 'First',
+      comparePick2: 'Second',
+      compareBtn: 'Compare',
+      compareNeedTwo: 'Pick two different characters',
+      compareVs: 'vs',
+      compareWinner: (name) => `👑 Currently winning: ${name}`,
+      compareTie: "🤝 It's a tie",
+      streakLeadersTitle: 'Streak leaders 🔥',
+      streakLeadersEmpty: 'No one has a streak of consecutive days yet.',
+      shareResults: '📤 Share results',
+      shareTitle: (n) => `Week's results — ${n}`,
+      shareGenerating: 'Generating image...',
+      shareFallbackSaved: 'Image saved',
+      photoPickBtn: '🖼️ Photo',
+      photoRemoveBtn: '❌ Remove photo',
+      changePhotoAria: 'Change photo',
+      micAria: 'Voice input',
+      micListening: '🎙️ Listening...',
+      micUnsupported: 'Voice input is not supported on this device',
     },
+    predictions: [
+      "Today someone will definitely be right. The only question is who taps first.",
+      "The stars say: an argument over something tiny will drag on for 10+ minutes today.",
+      "Forecast: the number of \"I told you so\" moments will exceed the norm.",
+      "Good day to admit someone else was right. Unlikely anyone actually will, though.",
+      "Warning: elevated chance of a dishes-related dispute today.",
+      "Today the winner isn't the one who's right — it's the one who's louder.",
+      "The day will go smoothly. Probably. Actually, probably not.",
+      "Tip of the day: just agree right away — save yourself 20 minutes and some nerves.",
+      "Great day for a new rightness record.",
+      "Someone will say \"fine, never mind\" today — and everyone will know it's a lie.",
+      "Someone clearly forgot whose turn it is to take out the trash. Spoiler: not them.",
+      "Forecast: at least one \"you said that yourself\" incoming today.",
+    ],
     presets: [
       { name: "Mother-in-law (wife's mom)", emoji: '👵', color: '#FF5A7A' },
       { name: "Father-in-law (wife's dad)", emoji: '👴', color: '#1FC8C0' },
@@ -295,6 +369,17 @@ function getPresets() { return I18N[currentLang()].presets; }
 function getQuips() { return I18N[currentLang()].quips; }
 function getWeekLabels() { return I18N[currentLang()].weekLabels; }
 function getAchievements() { return I18N[currentLang()].achievements; }
+function getPredictions() { return I18N[currentLang()].predictions; }
+
+// Одна и та же "фраза дня" для всех, кто откроет приложение в один день —
+// индекс выбирается детерминированно по дате, без Math.random().
+function getDailyPrediction() {
+  const list = getPredictions();
+  const key = dayKey(Date.now());
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  return list[hash % list.length];
+}
 
 const EMOJI_CHOICES = ['😀', '😎', '🥲', '🤨', '🧐', '😤', '🙄', '😇', '🤷', '🤷‍♀️', '🤷‍♂️', '👻', '🐱', '🐶', '🦄', '🔥', '👑', '💅', '🫡', '🧙', '🧑‍🍳', '🐍', '🦉', '🐢'];
 const COLOR_CHOICES = ['#FF5A7A', '#1FC8C0', '#FFC93C', '#8B5CF6', '#5AA9FF', '#FF9F5A'];
@@ -303,6 +388,13 @@ let state = { counters: [], settings: { sound: true, vibro: true, lang: 'auto', 
 let currentId = null;
 let pendingEmoji = '😀';
 let pendingColor = COLOR_CHOICES[0];
+let pendingPhoto = null; // dataURL строки, если выбрано фото вместо эмодзи
+
+// Персонаж для смены фото в карточке (id того, чью фотографию сейчас меняем)
+let photoEditTargetId = null;
+
+// Выбранные персонажи для режима сравнения "Кто кого?"
+let compareIds = [null, null];
 
 // Состояние модалки комментария
 let commentModalMode = 'add'; // 'add' | 'edit'
@@ -434,6 +526,8 @@ function renderView(id) {
     case 'view-settings': renderSettings(); break;
     case 'view-archive': renderArchive(); break;
     case 'view-summary': renderSummary(); break;
+    case 'view-feed': renderFeed(); break;
+    case 'view-compare': renderCompare(); break;
   }
 }
 
@@ -456,6 +550,9 @@ function goHome() {
 
 // ---------- Рендер: главный экран ----------
 function renderHome() {
+  const predictionEl = document.getElementById('daily-prediction-text');
+  if (predictionEl) predictionEl.textContent = getDailyPrediction();
+
   const list = document.getElementById('home-list');
   const empty = document.getElementById('home-empty');
   list.innerHTML = '';
@@ -475,7 +572,7 @@ function renderHome() {
     wrap.innerHTML = `
       <div class="swipe-action-bg">${t('archive')} 📦</div>
       <div class="counter-card" style="border-left-color:${c.color}">
-        <div class="counter-card-emoji" style="background:${c.color}22">${c.emoji}</div>
+        <div class="counter-card-emoji" style="background:${c.color}22">${avatarMarkup(c)}</div>
         <div class="counter-card-body">
           <div class="counter-card-name">${escapeHtml(c.name)}</div>
           <div class="counter-card-sub">${tapsThisWeek(c)} ${t('statWeek')}</div>
@@ -576,6 +673,12 @@ function attachSwipeToArchive(card, wrap, id) {
   card.addEventListener('pointerdown', closeAllOtherCards);
 }
 
+// ---------- Аватар персонажа: фото (если есть) или эмодзи ----------
+function avatarMarkup(c) {
+  if (c.photo) return `<img src="${c.photo}" class="avatar-photo" alt="">`;
+  return `<span class="avatar-emoji">${c.emoji}</span>`;
+}
+
 function escapeHtml(str) {
   const d = document.createElement('div');
   d.textContent = str;
@@ -596,9 +699,9 @@ function renderDetail() {
   const c = getCurrentCounter();
   if (!c) { goHome(); return; }
 
-  document.getElementById('detail-emoji').textContent = c.emoji;
+  document.getElementById('detail-emoji').innerHTML = avatarMarkup(c);
   document.getElementById('detail-name').textContent = c.name;
-  document.getElementById('tap-emoji').textContent = c.emoji;
+  document.getElementById('tap-emoji').innerHTML = avatarMarkup(c);
 
   const total = c.taps.length;
   document.getElementById('score-total').textContent = total;
@@ -894,12 +997,71 @@ function openAddModal() {
   renderEmojiPalette();
   renderColorRow();
   document.getElementById('input-custom-name').value = '';
+  pendingPhoto = null;
+  updatePhotoPreview();
   document.getElementById('modal-add').classList.remove('hidden');
 }
 
 function closeAddModal() {
   document.getElementById('modal-add').classList.add('hidden');
   document.getElementById('emoji-palette').classList.add('hidden');
+}
+
+// ---------- Фото вместо эмодзи ----------
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Сжимаем фото до небольшого квадрата, чтобы не раздувать localStorage.
+function resizeImageDataUrl(dataUrl, size) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+async function handlePhotoFile(file) {
+  if (!file) return;
+  const raw = await readFileAsDataUrl(file);
+  pendingPhoto = await resizeImageDataUrl(raw, 200);
+  updatePhotoPreview();
+}
+
+function updatePhotoPreview() {
+  const btn = document.getElementById('btn-pick-emoji');
+  if (pendingPhoto) {
+    btn.innerHTML = `<img src="${pendingPhoto}" class="avatar-photo" alt="">`;
+  } else {
+    btn.textContent = pendingEmoji;
+  }
+  const removeBtn = document.getElementById('btn-remove-photo');
+  if (removeBtn) removeBtn.classList.toggle('hidden', !pendingPhoto);
+}
+
+async function handleChangePhotoFile(file) {
+  const c = getCurrentCounter();
+  if (!c || !file) return;
+  const raw = await readFileAsDataUrl(file);
+  c.photo = await resizeImageDataUrl(raw, 200);
+  saveState();
+  renderDetail();
+  renderHome();
 }
 
 function renderPresetGrid() {
@@ -922,7 +1084,8 @@ function renderEmojiPalette() {
     btn.textContent = e;
     btn.addEventListener('click', () => {
       pendingEmoji = e;
-      document.getElementById('btn-pick-emoji').textContent = e;
+      pendingPhoto = null;
+      updatePhotoPreview();
       pal.classList.add('hidden');
     });
     pal.appendChild(btn);
@@ -946,8 +1109,9 @@ function renderColorRow() {
   });
 }
 
-function addCounter(name, emoji, color) {
+function addCounter(name, emoji, color, photo) {
   const c = { id: uid(), name, emoji, color, taps: [], patterns: [] };
+  if (photo) c.photo = photo;
   state.counters.unshift(c);
   saveState();
   closeAddModal();
@@ -961,7 +1125,7 @@ function handleAddCustom() {
     showToast(t('enterNameToast'));
     return;
   }
-  addCounter(name, pendingEmoji, pendingColor);
+  addCounter(name, pendingEmoji, pendingColor, pendingPhoto);
 }
 
 // ---------- Общая статистика (итоги недели) ----------
@@ -1003,6 +1167,230 @@ function renderSummary() {
     banner.textContent = `${top.c.emoji} ${top.c.name}: ${label}`;
     list.appendChild(banner);
   }
+
+  renderStreakLeaders(activeCounters);
+}
+
+// ---------- Лидеры по сериям (стрикам) ----------
+function renderStreakLeaders(activeCounters) {
+  const wrap = document.getElementById('streak-leaders-list');
+  const empty = document.getElementById('streak-leaders-empty');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  const ranked = activeCounters
+    .map(c => ({ c, streak: computeStreak(c) }))
+    .filter(r => r.streak > 0)
+    .sort((a, b) => b.streak - a.streak);
+
+  if (ranked.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  ranked.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'summary-row';
+    row.innerHTML = `
+      <div class="summary-rank">#${i + 1}</div>
+      <div class="summary-emoji">${avatarMarkup(r.c)}</div>
+      <div class="summary-name">${escapeHtml(r.c.name)}</div>
+      <div class="summary-count">${t('streakText', r.streak)}</div>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+// ---------- Поделиться итогами недели как картинкой ----------
+async function shareWeeklyResults() {
+  const activeCounters = state.counters.filter(c => !c.archived);
+  if (activeCounters.length === 0) return;
+
+  const ranked = activeCounters
+    .map(c => ({ c, week: tapsThisWeek(c) }))
+    .sort((a, b) => b.week - a.week);
+
+  const width = 800, rowH = 92, headerH = 140, footerH = 50;
+  const height = headerH + ranked.length * rowH + footerH;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, '#FF5A7A');
+  grad.addColorStop(1, '#8B5CF6');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '900 40px sans-serif';
+  ctx.fillText('🤔 ' + t('appTitle'), 32, 60);
+  ctx.font = '700 26px sans-serif';
+  ctx.fillText(t('weekResults'), 32, 104);
+
+  ranked.forEach((r, i) => {
+    const y = headerH + i * rowH;
+    ctx.fillStyle = 'rgba(255,255,255,0.16)';
+    roundRect(ctx, 24, y, width - 48, rowH - 14, 18);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 30px sans-serif';
+    ctx.fillText(`#${i + 1}`, 44, y + 50);
+    ctx.font = '48px sans-serif';
+    ctx.fillText(r.c.emoji, 120, y + 55);
+    ctx.font = '700 30px sans-serif';
+    ctx.fillText(r.c.name, 200, y + 50);
+    ctx.font = '900 34px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(String(r.week), width - 60, y + 52);
+    ctx.textAlign = 'left';
+  });
+
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = '500 18px sans-serif';
+  ctx.fillText('kto-prav-v-semie', 32, height - 20);
+
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    const fileName = 'kto-prav-itogi-nedeli.png';
+    const file = new File([blob], fileName, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: t('shareTitle', t('appTitle')) });
+        return;
+      } catch (e) { /* пользователь отменил или шеринг не сработал — упадём в скачивание */ }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast(t('shareFallbackSaved'));
+  }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// ---------- Лента событий (все тапы всех персонажей) ----------
+function renderFeed() {
+  const list = document.getElementById('feed-list');
+  const empty = document.getElementById('feed-empty');
+  list.innerHTML = '';
+
+  const activeCounters = state.counters.filter(c => !c.archived);
+  const events = [];
+  activeCounters.forEach(c => {
+    c.taps.forEach(tap => events.push({ c, tap }));
+  });
+  events.sort((a, b) => b.tap.ts - a.tap.ts);
+
+  if (events.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  events.slice(0, 200).forEach(({ c, tap }) => {
+    const row = document.createElement('div');
+    row.className = 'history-row feed-row';
+    row.innerHTML = `
+      <span class="history-row-icon feed-avatar" style="background:${c.color}22">${avatarMarkup(c)}</span>
+      <div class="history-row-body">
+        <div class="history-row-date">${escapeHtml(c.name)} · ${formatTapDate(tap.ts)}</div>
+        <div class="history-row-note ${tap.note ? '' : 'empty'}">${tap.note ? escapeHtml(tap.note) : t('noComment')}</div>
+      </div>
+    `;
+    row.addEventListener('click', () => { currentId = c.id; navigateTo('view-detail'); });
+    list.appendChild(row);
+  });
+}
+
+// ---------- Сравнение "Кто кого?" ----------
+function renderCompareSelects() {
+  const active = state.counters.filter(c => !c.archived);
+  [1, 2].forEach(n => {
+    const sel = document.getElementById('compare-select-' + n);
+    const current = compareIds[n - 1];
+    sel.innerHTML = `<option value="">—</option>` + active.map(c =>
+      `<option value="${c.id}">${c.emoji} ${escapeHtml(c.name)}</option>`
+    ).join('');
+    sel.value = current && active.some(c => c.id === current) ? current : '';
+  });
+}
+
+function renderCompare() {
+  renderCompareSelects();
+  renderCompareResult();
+}
+
+function renderCompareResult() {
+  const result = document.getElementById('compare-result');
+  const [id1, id2] = compareIds;
+  const c1 = state.counters.find(c => c.id === id1);
+  const c2 = state.counters.find(c => c.id === id2);
+
+  if (!c1 || !c2 || c1.id === c2.id) {
+    result.innerHTML = `<div class="empty-state"><div class="empty-emoji">⚔️</div><p>${t('compareNeedTwo')}</p></div>`;
+    return;
+  }
+
+  const rows = [
+    { label: t('statToday'), a: tapsToday(c1), b: tapsToday(c2) },
+    { label: t('statWeek'), a: tapsThisWeek(c1), b: tapsThisWeek(c2) },
+    { label: t('scoreLabel'), a: c1.taps.length, b: c2.taps.length },
+    { label: '🔥', a: computeStreak(c1), b: computeStreak(c2) },
+  ];
+
+  let html = `
+    <div class="compare-header-row">
+      <div class="compare-side"><div class="compare-avatar">${avatarMarkup(c1)}</div><div class="compare-name">${escapeHtml(c1.name)}</div></div>
+      <div class="compare-vs">${t('compareVs')}</div>
+      <div class="compare-side"><div class="compare-avatar">${avatarMarkup(c2)}</div><div class="compare-name">${escapeHtml(c2.name)}</div></div>
+    </div>
+  `;
+
+  rows.forEach(r => {
+    const max = Math.max(r.a, r.b, 1);
+    html += `
+      <div class="compare-row">
+        <div class="compare-val compare-val-left ${r.a >= r.b ? 'compare-lead' : ''}">${r.a}</div>
+        <div class="compare-bars">
+          <div class="compare-bar-track compare-bar-left"><div class="compare-bar-fill" style="width:${(r.a / max) * 100}%;background:${c1.color}"></div></div>
+          <div class="compare-row-label">${r.label}</div>
+          <div class="compare-bar-track compare-bar-right"><div class="compare-bar-fill" style="width:${(r.b / max) * 100}%;background:${c2.color}"></div></div>
+        </div>
+        <div class="compare-val compare-val-right ${r.b >= r.a ? 'compare-lead' : ''}">${r.b}</div>
+      </div>
+    `;
+  });
+
+  const totalA = c1.taps.length, totalB = c2.taps.length;
+  const verdict = totalA === totalB ? t('compareTie') : t('compareWinner', totalA > totalB ? c1.name : c2.name);
+  html += `<div class="achievement-badge" style="margin-top:16px">${verdict}</div>`;
+
+  result.innerHTML = html;
+}
+
+function handleCompareSelectChange() {
+  compareIds = [
+    document.getElementById('compare-select-1').value || null,
+    document.getElementById('compare-select-2').value || null,
+  ];
+  renderCompareResult();
 }
 
 // ---------- Модалка "тап с комментарием" / редактирование тапа ----------
@@ -1028,6 +1416,55 @@ function openCommentModal(mode, tap) {
 
 function closeCommentModal() {
   document.getElementById('modal-comment').classList.add('hidden');
+  stopVoiceInput();
+}
+
+// ---------- Голосовой ввод комментария ----------
+let voiceRecognition = null;
+let voiceListening = false;
+
+function getSpeechRecognitionCtor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function toggleVoiceInput() {
+  const Ctor = getSpeechRecognitionCtor();
+  const micBtn = document.getElementById('btn-voice-input');
+  if (!Ctor) {
+    showToast(t('micUnsupported'));
+    return;
+  }
+  if (voiceListening) {
+    stopVoiceInput();
+    return;
+  }
+  voiceRecognition = new Ctor();
+  voiceRecognition.lang = currentLang() === 'ru' ? 'ru-RU' : 'en-US';
+  voiceRecognition.interimResults = false;
+  voiceRecognition.maxAlternatives = 1;
+
+  voiceRecognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    const field = document.getElementById('input-comment-text');
+    field.value = (field.value ? field.value + ' ' : '') + transcript;
+  };
+  voiceRecognition.onerror = () => stopVoiceInput();
+  voiceRecognition.onend = () => stopVoiceInput();
+
+  try {
+    voiceRecognition.start();
+    voiceListening = true;
+    if (micBtn) { micBtn.classList.add('listening'); micBtn.textContent = '⏺️'; }
+  } catch (e) { stopVoiceInput(); }
+}
+
+function stopVoiceInput() {
+  if (voiceRecognition) {
+    try { voiceRecognition.stop(); } catch (e) {}
+  }
+  voiceListening = false;
+  const micBtn = document.getElementById('btn-voice-input');
+  if (micBtn) { micBtn.classList.remove('listening'); micBtn.textContent = '🎙️'; }
 }
 
 function renderPatternChips(c) {
@@ -1255,6 +1692,8 @@ function applyLanguage() {
     case 'view-settings': renderSettings(); break;
     case 'view-archive': renderArchive(); break;
     case 'view-summary': renderSummary(); break;
+    case 'view-feed': renderFeed(); break;
+    case 'view-compare': renderCompare(); break;
   }
 }
 
@@ -1304,6 +1743,51 @@ function init() {
     navigateTo('view-archive');
   });
   document.getElementById('btn-back-home-3').addEventListener('click', goHome);
+
+  // ---- Лента событий ----
+  document.getElementById('btn-open-feed').addEventListener('click', () => {
+    navigateTo('view-feed');
+  });
+  document.getElementById('btn-back-from-feed').addEventListener('click', goHome);
+
+  // ---- Сравнение "Кто кого?" ----
+  document.getElementById('btn-open-compare').addEventListener('click', () => {
+    compareIds = [null, null];
+    navigateTo('view-compare');
+  });
+  document.getElementById('btn-back-from-compare').addEventListener('click', goHome);
+  document.getElementById('compare-select-1').addEventListener('change', handleCompareSelectChange);
+  document.getElementById('compare-select-2').addEventListener('change', handleCompareSelectChange);
+
+  // ---- Итоги недели: поделиться и лидеры по сериям ----
+  document.getElementById('btn-share-results').addEventListener('click', shareWeeklyResults);
+
+  // ---- Фото вместо эмодзи (добавление персонажа) ----
+  document.getElementById('input-photo-file').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) handlePhotoFile(file);
+    e.target.value = '';
+  });
+  document.getElementById('btn-pick-photo').addEventListener('click', () => {
+    document.getElementById('input-photo-file').click();
+  });
+  document.getElementById('btn-remove-photo').addEventListener('click', () => {
+    pendingPhoto = null;
+    updatePhotoPreview();
+  });
+
+  // ---- Смена фото у существующего персонажа (тап по аватару в карточке) ----
+  document.getElementById('detail-emoji').addEventListener('click', () => {
+    document.getElementById('input-change-photo-file').click();
+  });
+  document.getElementById('input-change-photo-file').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) handleChangePhotoFile(file);
+    e.target.value = '';
+  });
+
+  // ---- Голосовой ввод комментария ----
+  document.getElementById('btn-voice-input').addEventListener('click', toggleVoiceInput);
 
   // ---- Комментарии к тапам ----
   document.getElementById('btn-tap-comment').addEventListener('click', () => openCommentModal('add', null));
@@ -1362,6 +1846,11 @@ function init() {
     if (file) importDataFromFile(file);
     e.target.value = '';
   });
+
+  if (!getSpeechRecognitionCtor()) {
+    const micBtn = document.getElementById('btn-voice-input');
+    if (micBtn) micBtn.classList.add('hidden');
+  }
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

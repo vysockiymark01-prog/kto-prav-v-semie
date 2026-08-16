@@ -35,6 +35,8 @@
         <h1 data-i18n="appTitle">Кто прав в семье?</h1>
       </div>
       <div class="header-actions">
+        <button id="btn-open-feed" class="icon-btn" data-i18n-title="feedTitle" data-i18n-aria="feedTitle" title="Лента событий" aria-label="Лента событий">🧾</button>
+        <button id="btn-open-compare" class="icon-btn" data-i18n-title="compare" data-i18n-aria="compare" title="Сравнение" aria-label="Сравнение">⚔️</button>
         <button id="btn-open-archive" class="icon-btn" data-i18n-title="archive" data-i18n-aria="archive" title="Архив" aria-label="Архив">
           📦<span id="archive-badge" class="badge hidden">0</span>
         </button>
@@ -42,6 +44,11 @@
         <button id="btn-open-settings" class="icon-btn" data-i18n-title="settings" data-i18n-aria="settings" title="Настройки" aria-label="Настройки">⚙️</button>
       </div>
     </header>
+
+    <div class="daily-prediction-card">
+      <span class="daily-prediction-emoji">🔮</span>
+      <p id="daily-prediction-text" class="daily-prediction-text"></p>
+    </div>
 
     <div id="home-list" class="counter-list"></div>
 
@@ -60,10 +67,11 @@
     <header class="app-header detail-header">
       <button class="icon-btn back-btn" id="btn-back-home" data-i18n-aria="back" aria-label="Назад">←</button>
       <div class="detail-title">
-        <span id="detail-emoji" class="detail-emoji">👵</span>
+        <span id="detail-emoji" class="detail-emoji" data-i18n-title="changePhotoAria" data-i18n-aria="changePhotoAria" title="Изменить фото" aria-label="Изменить фото" role="button">👵</span>
         <h1 id="detail-name">Тёща</h1>
       </div>
       <button class="icon-btn" id="btn-delete-counter" data-i18n-title="moveToArchive" data-i18n-aria="moveToArchive" title="В архив" aria-label="Переместить в архив">📦</button>
+      <input type="file" id="input-change-photo-file" accept="image/*" class="hidden">
     </header>
 
     <div class="detail-scroll">
@@ -254,6 +262,49 @@
         <div class="empty-emoji">🤷</div>
         <p data-i18n="summaryEmpty">Добавь хотя бы одного персонажа, чтобы увидеть рейтинг правоты.</p>
       </div>
+
+      <button id="btn-share-results" class="secondary-btn" style="margin-top:16px" data-i18n="shareResults">📤 Поделиться итогами</button>
+
+      <div class="chart-card" style="margin-top:20px">
+        <h2 data-i18n="streakLeadersTitle">Лидеры по сериям 🔥</h2>
+        <div id="streak-leaders-list" class="summary-list"></div>
+        <div id="streak-leaders-empty" class="empty-state hidden">
+          <p data-i18n="streakLeadersEmpty">Пока ни у кого нет серии подряд идущих дней.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: ЛЕНТА СОБЫТИЙ ===== -->
+  <section id="view-feed" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-from-feed" data-i18n-aria="back" aria-label="Назад">←</button>
+      <div class="detail-title"><h1 data-i18n="feedTitle">Лента событий</h1></div>
+      <span style="width:42px"></span>
+    </header>
+    <div class="detail-scroll">
+      <div id="feed-list" class="history-list"></div>
+      <div id="feed-empty" class="empty-state hidden">
+        <div class="empty-emoji">🧾</div>
+        <p data-i18n="feedEmpty">Пока нет ни одного тапа.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ЭКРАН: СРАВНЕНИЕ "КТО КОГО?" ===== -->
+  <section id="view-compare" class="view">
+    <header class="app-header">
+      <button class="icon-btn back-btn" id="btn-back-from-compare" data-i18n-aria="back" aria-label="Назад">←</button>
+      <div class="detail-title"><h1 data-i18n="compareTitle">Кто кого?</h1></div>
+      <span style="width:42px"></span>
+    </header>
+    <div class="detail-scroll">
+      <div class="compare-picker">
+        <select id="compare-select-1" class="compare-select"></select>
+        <span class="compare-vs" data-i18n="compareVs">против</span>
+        <select id="compare-select-2" class="compare-select"></select>
+      </div>
+      <div id="compare-result"></div>
     </div>
   </section>
 
@@ -275,6 +326,11 @@
       </div>
       <div class="emoji-palette hidden" id="emoji-palette"></div>
       <div class="color-row" id="color-row"></div>
+      <div class="photo-row">
+        <button id="btn-pick-photo" type="button" class="secondary-btn" data-i18n="photoPickBtn">🖼️ Фото</button>
+        <button id="btn-remove-photo" type="button" class="secondary-btn hidden" data-i18n="photoRemoveBtn">❌ Убрать фото</button>
+        <input type="file" id="input-photo-file" accept="image/*" class="hidden">
+      </div>
       <button id="btn-add-custom" class="primary-btn" data-i18n="addBtn">Добавить</button>
     </div>
 
@@ -290,7 +346,10 @@
 
     <div class="pattern-chips" id="pattern-chips"></div>
 
-    <textarea id="input-comment-text" class="comment-textarea" rows="3" maxlength="200" data-i18n-placeholder="commentPlaceholder" placeholder="Почему был(а) прав(а)? (необязательно)"></textarea>
+    <div class="comment-textarea-row">
+      <textarea id="input-comment-text" class="comment-textarea" rows="3" maxlength="200" data-i18n-placeholder="commentPlaceholder" placeholder="Почему был(а) прав(а)? (необязательно)"></textarea>
+      <button id="btn-voice-input" type="button" class="mic-btn" data-i18n-title="micAria" data-i18n-aria="micAria" title="Голосовой ввод" aria-label="Голосовой ввод">🎙️</button>
+    </div>
 
     <label class="save-pattern-row">
       <input type="checkbox" id="chk-save-pattern" checked>
